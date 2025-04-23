@@ -1,6 +1,7 @@
 import useAutocomplete from "@mui/material/useAutocomplete";
 import { styled } from "@mui/system";
 import { Button, Form, InputGroup } from "react-bootstrap";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
 const Label = styled("label")({
   display: "block",
@@ -57,17 +58,17 @@ export default function SearchAutocomplete() {
 
   return (
     <div>
-      <InputGroup className="mb-3">
+      <InputGroup className="mx-auto" style={{ maxWidth: "30rem" }}>
         <Form.Control
-          placeholder="Recipient's username"
+          placeholder="Buscar"
           aria-label="Recipient's username"
           aria-describedby="basic-addon2"
         />
-        <Button variant="outline-primary" id="button-addon2">
-          Button
+        <Button variant="outline-primary p-0 px-2" id="button-addon2">
+          <SearchRoundedIcon />
         </Button>
       </InputGroup>
-      <div {...getRootProps()}>
+      <div {...getRootProps()} className="d-none">
         <Label {...getInputLabelProps()}>useAutocomplete</Label>
         <Input {...getInputProps()} />
       </div>

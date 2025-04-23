@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Col,
   InputGroup,
@@ -24,6 +24,20 @@ const Header = () => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  useEffect(() => {
+    const manejarResize = () => {
+      if (window.innerWidth > 767) {
+        handleClose();
+      }
+    };
+
+    window.addEventListener("resize", manejarResize);
+
+    return () => {
+      window.removeEventListener("resize", manejarResize);
+    };
+  }, [handleClose]);
+
   return (
     <>
       <Navbar className="bg-body justify-content-between">
@@ -36,7 +50,7 @@ const Header = () => {
             <span className="h1 fw-bolder d-none d-md-block">AgroShop</span>
           </NavLink>
           <Nav className="w-100">
-            <div className="px-5 w-100">
+            <div className="px-md-5 w-100" >
               <SearchAutocomplete />
             </div>
           </Nav>
@@ -44,7 +58,7 @@ const Header = () => {
             <Nav.Link className="my-auto">
               <ThemeSwitcher />
             </Nav.Link>
-            <Nav.Link className="my-auto">
+            <Nav.Link className="my-auto px-0 d-block d-md-none">
               <Button variant="outline-primary p-0" onClick={handleShow}>
                 <MenuOpenRoundedIcon fontSize="large" />
               </Button>
