@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Header from "./components/header";
 import Inicio from "../pages/inicio";
+import Login from "../pages/authentication/login";
+import Register from "../pages/authentication/register";
 
 const My_Routes = () => {
   return (
@@ -11,7 +13,9 @@ const My_Routes = () => {
         </div>
         <div className="">
           <Routes>
-            <Route path="/" element={<Inicio />} />
+            <Route exact path="/" element={<Inicio />} />
+            <Route exact path="/login" element={<Login />} />
+            <Route exact path="/register" element={<Register />} />
           </Routes>
         </div>
       </BrowserRouter>
