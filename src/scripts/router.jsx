@@ -3,6 +3,7 @@ import Header from "./components/header";
 import Inicio from "../pages/inicio";
 import Login from "../pages/authentication/login";
 import Register from "../pages/authentication/register";
+import Adminicio from "../pages/admin/admininicio";
 
 const My_Routes = () => {
   return (
@@ -16,6 +17,7 @@ const My_Routes = () => {
             <Route exact path="/" element={<Inicio />} />
             <Route exact path="/login" element={<Login />} />
             <Route exact path="/register" element={<Register />} />
+            <Route exact path="/paneladmin" element={<Adminicio />}/>
           </Routes>
         </div>
       </BrowserRouter>

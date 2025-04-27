@@ -75,7 +75,7 @@ const Navegador = ({ expand, show, handleClose }) => {
                     </NavDropdown.Item>
                   </NavDropdown>
                 )}
-                <Nav.Link href="#action2">Eventos</Nav.Link>
+                <Nav.Link href="/paneladmin">Eventos</Nav.Link>
               </Nav>
               <hr className="d-lg-none my-2 text-white-50"></hr>
               <Nav className="justify-content-end">
