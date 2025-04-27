@@ -57,6 +57,7 @@ export function ProductorNav() {
                 <NavLink
                   key={i}
                   to={e.url}
+                  end={e.url} 
                   className="d-flex align-items-center gap-1 nav-link"
                 >
                   {e.name}

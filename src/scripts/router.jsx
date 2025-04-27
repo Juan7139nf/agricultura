@@ -6,6 +6,9 @@ import Register from "../pages/authentication/register";
 import { ProductorInicio } from "../pages/productor/productorInicio";
 import { ProductorProductoCrear } from "../pages/productor/productosCrear";
 import { ProductorProductos } from "../pages/productor/productos";
+import { ProductorPedidos } from "../pages/productor/pedidos";
+import { ProductorEventos } from "../pages/productor/eventos";
+import { ProductorFacturacion } from "../pages/productor/facturacion";
 
 const My_Routes = () => {
   return (
@@ -23,6 +26,10 @@ const My_Routes = () => {
             <Route exact path="/productor" element={<ProductorInicio />} />
             <Route exact path="/productor/productos" element={<ProductorProductos />} />
             <Route exact path="/productor/productos/crear" element={<ProductorProductoCrear />} />
+            
+            <Route exact path="/productor/pedidos" element={<ProductorPedidos />} />
+            <Route exact path="/productor/facturacion" element={<ProductorFacturacion />} />
+            <Route exact path="/productor/eventos" element={<ProductorEventos />} />
           </Routes>
         </div>
       </BrowserRouter>
