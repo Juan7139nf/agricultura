@@ -4,6 +4,9 @@ import Inicio from "../pages/inicio";
 import Login from "../pages/authentication/login";
 import Register from "../pages/authentication/register";
 import Adminicio from "../pages/admin/admininicio";
+import { ProductorInicio } from "../pages/productor/productorInicio";
+import { ProductorProductoCrear } from "../pages/productor/productosCrear";
+import { ProductorProductos } from "../pages/productor/productos";
 
 const My_Routes = () => {
   return (
@@ -12,12 +15,16 @@ const My_Routes = () => {
         <div className="w-100">
           <Header />
         </div>
-        <div className="">
+        <div className="border-top">
           <Routes>
             <Route exact path="/" element={<Inicio />} />
             <Route exact path="/login" element={<Login />} />
             <Route exact path="/register" element={<Register />} />
             <Route exact path="/paneladmin" element={<Adminicio />}/>
+
+            <Route exact path="/productor" element={<ProductorInicio />} />
+            <Route exact path="/productor/productos" element={<ProductorProductos />} />
+            <Route exact path="/productor/productos/crear" element={<ProductorProductoCrear />} />
           </Routes>
         </div>
       </BrowserRouter>

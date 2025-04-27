@@ -44,6 +44,16 @@
     --bs-dark-info: #002b63;
 }
 
+[data-bs-theme=light] {
+    --bs-color-nav: #000;
+    --bs-hover-nav: #f0f3f2;
+}
+
+[data-bs-theme=dark] {
+    --bs-color-nav: #fff;
+    --bs-hover-nav: #001e2b;
+}
+
 .btn-primary {
     background: var(--bs-primary) !important;
     border-color: var(--bs-primary) !important;
@@ -70,6 +80,28 @@
     color: #fff !important;
 }
 
-.nav-link.active{
+.nav-link.active {
+    color: var(--bs-primary) !important;
+}
+
+.nav-pills-dark .nav-item .nav-link.active,
+.nav-pills-dark .nav-item .nav-link.active:hover {
+    color: #fff !important;
+    background-color: var(--bs-active-primary);
+}
+
+.nav-pills-dark .nav-item .nav-link {
+    color: var(--bs-color-nav);
+}
+
+.nav-pills-dark .nav-item .nav-link:hover {
+    background-color: var(--bs-hover-nav);
+}
+
+.dropdown-item.active, .dropdown-item:active {
+    background-color: var(--bs-active-primary);
+}
+
+.text-primary {
     color: var(--bs-primary) !important;
 }

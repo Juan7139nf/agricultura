@@ -2,12 +2,14 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getDatabase } from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
+  databaseURL: "https://agricultura-eac73-default-rtdb.firebaseio.com",
   apiKey: "AIzaSyBUNKSgYPMY-6K3bSQWtTFM6uyzSr4jD6A",
   authDomain: "agricultura-eac73.firebaseapp.com",
   projectId: "agricultura-eac73",
@@ -23,5 +25,6 @@ const analytics = getAnalytics(app);
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const database = getDatabase(app);
 
-export { auth, provider };
+export { auth, provider, database };
