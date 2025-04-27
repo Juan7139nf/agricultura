@@ -65,14 +65,16 @@ const Navegador = ({ expand, show, handleClose }) => {
                     title="Panel administrativo"
                     id={`offcanvasNavbarDropdown-expand-${expand}`}
                   >
-                    <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
-                    <NavDropdown.Item href="#action4">
-                      Another action
-                    </NavDropdown.Item>
+                    <NavLink className="dropdown-item" to={"/productor"}>
+                      Productor
+                    </NavLink>
+                    <NavLink className="dropdown-item" to={"/comerciante"}>
+                      Comerciante
+                    </NavLink>
                     <NavDropdown.Divider />
-                    <NavDropdown.Item href="#action5">
-                      Something else here
-                    </NavDropdown.Item>
+                    <NavLink className="dropdown-item" to={"/administracion"}>
+                      Administracion
+                    </NavLink>
                   </NavDropdown>
                 )}
                 <Nav.Link href="#action2">Eventos</Nav.Link>
@@ -109,7 +111,6 @@ const Navegador = ({ expand, show, handleClose }) => {
                         <img
                           src={ini.photoURL}
                           alt=""
-                          srcset=""
                           width={40}
                           height={40}
                           className="rounded-circle"
