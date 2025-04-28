@@ -14,7 +14,7 @@ const usuarios = [
     telefono: null,
     gastado: "$49.00",
     tipo: "usuario",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-2.jpg",
     cuentaHabilitada: true,
   },
   {
@@ -25,7 +25,7 @@ const usuarios = [
     telefono: null,
     gastado: "$39.00",
     tipo: "usuario",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-2.jpg",
     cuentaHabilitada: true,
   },
   {
@@ -36,7 +36,7 @@ const usuarios = [
     telefono: "313-887-8495",
     gastado: "$19.00",
     tipo: "usuario",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-2.jpg",
     cuentaHabilitada: true,
   },
   {
@@ -47,7 +47,7 @@ const usuarios = [
     telefono: null,
     gastado: "$39.00",
     tipo: "usuario",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-2.jpg",
     cuentaHabilitada: false,
   },
 ]

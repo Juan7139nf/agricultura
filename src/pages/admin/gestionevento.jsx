@@ -15,7 +15,7 @@ const eventosIniciales = [
     cuposDisponibles: 25,
     cuposTotal: 50,
     estado: "activo",
-    imagen: "/placeholder.svg",
+    imagen: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNAHkYXRtt-9Z5JANitwoQZWWOEby8yn91Qw&s",
     participantes: [
       { id: "2", nombre: "Judy Nelson", tipo: "comerciante" },
       { id: "5", nombre: "Rhonda Pinson", tipo: "comerciante" },

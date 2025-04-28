@@ -14,7 +14,7 @@ const comerciantes = [
     telefono: "435-239-6436",
     gastado: "$490.00",
     tipo: "comerciante",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-4.jpg",
     cuentaHabilitada: true,
   },
   {
@@ -25,7 +25,7 @@ const comerciantes = [
     telefono: "304-471-8451",
     gastado: "$213.00",
     tipo: "comerciante",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-4.jpg",
     cuentaHabilitada: true,
   },
   {
@@ -36,7 +36,7 @@ const comerciantes = [
     telefono: "845-294-6681",
     gastado: "$39.00",
     tipo: "comerciante",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-4.jpg",
     cuentaHabilitada: false,
   },
 ]

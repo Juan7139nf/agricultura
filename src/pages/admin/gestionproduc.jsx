@@ -14,7 +14,7 @@ const productores = [
     telefono: "347-424-9526",
     gastado: "$29.00",
     tipo: "productor",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-8.jpg",
     cuentaHabilitada: true,
   },
   {
@@ -25,7 +25,7 @@ const productores = [
     telefono: "410-636-2682",
     gastado: "$490.00",
     tipo: "productor",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-8.jpg",
     cuentaHabilitada: true,
   },
   {
@@ -36,7 +36,7 @@ const productores = [
     telefono: "347-424-9526",
     gastado: "$29.00",
     tipo: "productor",
-    avatar: "/placeholder.svg",
+    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-8.jpg",
     cuentaHabilitada: false,
   },
 ]
@@ -48,6 +48,7 @@ export default function GestionProductores() {
   const [dialogoEstadoAbierto, setDialogoEstadoAbierto] = useState(false)
   const [estadoTemporal, setEstadoTemporal] = useState(false)
   const [justificacion, setJustificacion] = useState("")
+  const [menuAbierto, setMenuAbierto] = useState(null)
 
   const elementosPorPagina = 10
 
@@ -73,6 +74,7 @@ export default function GestionProductores() {
     setEstadoTemporal(productor.cuentaHabilitada)
     setJustificacion("")
     setDialogoEstadoAbierto(true)
+    setMenuAbierto(null) // Cerrar el menú al abrir el diálogo
   }
 
   // Función para guardar el estado de la cuenta
@@ -89,31 +91,200 @@ export default function GestionProductores() {
     }
   }
 
+  // Función para alternar el menú desplegable
+  const toggleMenu = (id) => {
+    if (menuAbierto === id) {
+      setMenuAbierto(null)
+    } else {
+      setMenuAbierto(id)
+    }
+  }
+
+  // Estilos en línea
+  const styles = {
+    badge: {
+      display: "inline-flex",
+      alignItems: "center",
+      padding: "0.25rem 0.5rem",
+      borderRadius: "9999px",
+      fontSize: "0.75rem",
+      fontWeight: "500",
+    },
+    badgeGreen: {
+      backgroundColor: "#dcfce7",
+      color: "#166534",
+    },
+    badgeRed: {
+      backgroundColor: "#fee2e2",
+      color: "#991b1b",
+    },
+    btn: {
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "0.5rem 1rem",
+      borderRadius: "0.375rem",
+      fontWeight: "500",
+      cursor: "pointer",
+      transition: "all 0.2s",
+      border: "none",
+    },
+    btnGhost: {
+      backgroundColor: "transparent",
+      padding: "0.25rem",
+    },
+    btnOutline: {
+      backgroundColor: "transparent",
+      border: "1px solid #e2e8f0",
+    },
+    btnPrimary: {
+      backgroundColor: "#3b82f6",
+      color: "white",
+    },
+    btnDisabled: {
+      backgroundColor: "#93c5fd",
+      cursor: "not-allowed",
+    },
+    dropdown: {
+      position: "relative",
+      display: "inline-block",
+    },
+    dropdownContent: {
+      display: "block",
+      position: "absolute",
+      right: "0",
+      backgroundColor: "white",
+      minWidth: "10rem",
+      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+      borderRadius: "0.375rem",
+      zIndex: "10",
+      border: "1px solid #e2e8f0",
+    },
+    dropdownHidden: {
+      display: "none",
+    },
+    menuItem: {
+      display: "block",
+      padding: "0.5rem 1rem",
+      cursor: "pointer",
+      color: "#374151",
+      textAlign: "left",
+      width: "100%",
+      backgroundColor: "transparent",
+      border: "none",
+      fontSize: "0.875rem",
+    },
+    menuItemHover: {
+      backgroundColor: "#f3f4f6",
+    },
+    menuItemDanger: {
+      color: "#dc2626",
+    },
+    divider: {
+      height: "1px",
+      backgroundColor: "#e2e8f0",
+      margin: "0.25rem 0",
+    },
+    modal: {
+      position: "fixed",
+      top: "0",
+      left: "0",
+      width: "100%",
+      height: "100%",
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: "50",
+    },
+    modalBox: {
+      backgroundColor: "white",
+      borderRadius: "0.5rem",
+      padding: "1.5rem",
+      width: "100%",
+      maxWidth: "32rem",
+    },
+    modalAction: {
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "0.5rem",
+      marginTop: "1.5rem",
+    },
+    toggle: {
+      appearance: "none",
+      width: "3rem",
+      height: "1.5rem",
+      backgroundColor: "#e2e8f0",
+      borderRadius: "9999px",
+      position: "relative",
+      cursor: "pointer",
+      transition: "all 0.2s",
+    },
+    toggleChecked: {
+      backgroundColor: "#3b82f6",
+    },
+    toggleBefore: {
+      content: '""',
+      position: "absolute",
+      width: "1rem",
+      height: "1rem",
+      borderRadius: "50%",
+      backgroundColor: "white",
+      top: "0.25rem",
+      left: "0.25rem",
+      transition: "all 0.2s",
+    },
+    toggleCheckedBefore: {
+      left: "1.75rem",
+    },
+    menuIcon: {
+      marginRight: "0.5rem",
+    },
+  }
+
   return (
-    <div className="p-6">
-      <div className="flex flex-col space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Gestión de Productores</h1>
+    <div style={{ padding: "1.5rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <h1 style={{ fontSize: "1.875rem", fontWeight: "bold" }}>Gestión de Productores</h1>
 
           {/* Breadcrumbs con NavLink */}
-          <div className="breadcrumbs">
-            <NavLink to="/admin" className={({ isActive }) => (isActive ? "active-link" : "")}>
+          <div style={{ display: "flex", gap: "0.5rem", fontSize: "0.875rem", color: "#6b7280" }}>
+            <NavLink to="/admin" style={({ isActive }) => (isActive ? { color: "#3b82f6", fontWeight: "600" } : {})}>
               Panel
             </NavLink>
             <span> / </span>
-            <NavLink to="/admin/productores" className={({ isActive }) => (isActive ? "active-link" : "")}>
+            <NavLink
+              to="/admin/productores"
+              style={({ isActive }) => (isActive ? { color: "#3b82f6", fontWeight: "600" } : {})}
+            >
               Productores
             </NavLink>
           </div>
         </div>
 
-        <div className="flex justify-between items-center mb-4">
-          <div className="relative w-full md:w-1/3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <div style={{ position: "relative", width: "100%", maxWidth: "33.333333%" }}>
+            <Search
+              style={{
+                position: "absolute",
+                left: "0.75rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#9ca3af",
+              }}
+              size={18}
+            />
             <input
               type="text"
               placeholder="Buscar productores..."
-              className="input pl-10 w-full"
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                paddingLeft: "2.5rem",
+                border: "1px solid #e2e8f0",
+                borderRadius: "0.375rem",
+              }}
               value={terminoBusqueda}
               onChange={(e) => setTerminoBusqueda(e.target.value)}
             />
@@ -121,69 +292,117 @@ export default function GestionProductores() {
         </div>
 
         {/* Tabla de productores */}
-        <div className="overflow-x-auto">
-          <table className="table w-full">
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th>
-                  <input type="checkbox" className="checkbox" />
+                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
+                  <input type="checkbox" />
                 </th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Fecha de Compra</th>
-                <th>Teléfono</th>
-                <th>Gastado</th>
-                <th>Estado</th>
-                <th></th>
+                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Nombre</th>
+                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Email</th>
+                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
+                  Fecha de Compra
+                </th>
+                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Teléfono</th>
+                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Gastado</th>
+                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Estado</th>
+                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}></th>
               </tr>
             </thead>
             <tbody>
               {productoresPaginados.map((productor) => (
-                <tr key={productor.id}>
-                  <td>
-                    <input type="checkbox" className="checkbox" />
+                <tr key={productor.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                  <td style={{ padding: "0.75rem" }}>
+                    <input type="checkbox" />
                   </td>
-                  <td>
-                    <div className="flex items-center gap-2">
-                      <div className="avatar">
-                        <div className="w-10 h-10 rounded-full">
-                          <img src={productor.avatar || "/placeholder.svg"} alt={productor.nombre} />
-                        </div>
+                  <td style={{ padding: "0.75rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <div
+                        style={{
+                          width: "2.5rem",
+                          height: "2.5rem",
+                          borderRadius: "9999px",
+                          overflow: "hidden",
+                          position: "relative",
+                        }}
+                      >
+                        <img
+                          src={productor.avatar || "/placeholder.svg"}
+                          alt={productor.nombre}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
                       </div>
-                      <span className="font-medium">{productor.nombre}</span>
+                      <span style={{ fontWeight: "500" }}>{productor.nombre}</span>
                     </div>
                   </td>
-                  <td>{productor.email}</td>
-                  <td>{productor.fechaCompra}</td>
-                  <td>{productor.telefono || "-"}</td>
-                  <td>{productor.gastado}</td>
-                  <td>
+                  <td style={{ padding: "0.75rem" }}>{productor.email}</td>
+                  <td style={{ padding: "0.75rem" }}>{productor.fechaCompra}</td>
+                  <td style={{ padding: "0.75rem" }}>{productor.telefono || "-"}</td>
+                  <td style={{ padding: "0.75rem" }}>{productor.gastado}</td>
+                  <td style={{ padding: "0.75rem" }}>
                     <span
-                      className={`badge ${productor.cuentaHabilitada ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                      style={{
+                        ...styles.badge,
+                        ...(productor.cuentaHabilitada ? styles.badgeGreen : styles.badgeRed),
+                      }}
                     >
                       {productor.cuentaHabilitada ? "Habilitada" : "Deshabilitada"}
                     </span>
                   </td>
-                  <td>
-                    <div className="dropdown dropdown-end">
-                      <label tabIndex={0} className="btn btn-ghost btn-xs">
-                        <MoreVertical className="h-4 w-4" />
-                      </label>
-                      <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                        <li>
-                          <a>Ver detalles</a>
-                        </li>
-                        <li>
-                          <a>Editar productor</a>
-                        </li>
-                        <li className="divider"></li>
-                        <li>
-                          <a onClick={() => abrirDialogoEstado(productor)}>
-                            <UserCog className="h-4 w-4 mr-2" />
-                            Gestionar estado
-                          </a>
-                        </li>
-                      </ul>
+                  <td style={{ padding: "0.75rem" }}>
+                    <div style={styles.dropdown}>
+                      <button
+                        onClick={() => toggleMenu(productor.id)}
+                        style={{ ...styles.btn, ...styles.btnGhost }}
+                        aria-label="Opciones"
+                      >
+                        <MoreVertical size={16} />
+                      </button>
+                      <div
+                        style={
+                          menuAbierto === productor.id
+                            ? styles.dropdownContent
+                            : { ...styles.dropdownContent, ...styles.dropdownHidden }
+                        }
+                      >
+                        <button
+                          style={styles.menuItem}
+                          onMouseEnter={(e) => {
+                            e.target.style.backgroundColor = styles.menuItemHover.backgroundColor
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.backgroundColor = "transparent"
+                          }}
+                        >
+                          Ver detalles
+                        </button>
+                        <button
+                          style={styles.menuItem}
+                          onMouseEnter={(e) => {
+                            e.target.style.backgroundColor = styles.menuItemHover.backgroundColor
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.backgroundColor = "transparent"
+                          }}
+                        >
+                          Editar productor
+                        </button>
+                        <div style={styles.divider}></div>
+                        <button
+                          style={styles.menuItem}
+                          onClick={() => abrirDialogoEstado(productor)}
+                          onMouseEnter={(e) => {
+                            e.target.style.backgroundColor = styles.menuItemHover.backgroundColor
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.backgroundColor = "transparent"
+                          }}
+                        >
+                          <UserCog size={16} style={styles.menuIcon} />
+                          Gestionar estado
+                        </button>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -193,16 +412,21 @@ export default function GestionProductores() {
         </div>
 
         {/* Paginación */}
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-gray-500">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "1rem" }}>
+          <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
             Mostrando {(paginaActual - 1) * elementosPorPagina + 1} a{" "}
             {Math.min(paginaActual * elementosPorPagina, productoresFiltrados.length)} de {productoresFiltrados.length}{" "}
             entradas
           </p>
 
-          <div className="flex gap-1">
+          <div style={{ display: "flex", gap: "0.25rem" }}>
             <button
-              className="btn btn-outline btn-sm"
+              style={{
+                ...styles.btn,
+                ...styles.btnOutline,
+                padding: "0.25rem 0.5rem",
+                fontSize: "0.875rem",
+              }}
               onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
               disabled={paginaActual === 1}
             >
@@ -212,7 +436,12 @@ export default function GestionProductores() {
             {Array.from({ length: Math.min(totalPaginas, 5) }, (_, i) => (
               <button
                 key={i}
-                className={`btn btn-sm ${paginaActual === i + 1 ? "btn-primary" : "btn-outline"}`}
+                style={{
+                  ...styles.btn,
+                  ...(paginaActual === i + 1 ? styles.btnPrimary : styles.btnOutline),
+                  padding: "0.25rem 0.5rem",
+                  fontSize: "0.875rem",
+                }}
                 onClick={() => setPaginaActual(i + 1)}
               >
                 {i + 1}
@@ -220,7 +449,12 @@ export default function GestionProductores() {
             ))}
 
             <button
-              className="btn btn-outline btn-sm"
+              style={{
+                ...styles.btn,
+                ...styles.btnOutline,
+                padding: "0.25rem 0.5rem",
+                fontSize: "0.875rem",
+              }}
               onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
               disabled={paginaActual === totalPaginas}
             >
@@ -232,49 +466,86 @@ export default function GestionProductores() {
 
       {/* Diálogo de estado de cuenta */}
       {dialogoEstadoAbierto && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5" />
+        <div style={styles.modal}>
+          <div style={styles.modalBox}>
+            <h3
+              style={{ fontWeight: "bold", fontSize: "1.125rem", display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
+              <Shield size={20} />
               Gestionar Estado de Cuenta
             </h3>
 
             {productorSeleccionado && (
-              <div className="flex items-center gap-2 mt-2">
-                <div className="avatar">
-                  <div className="w-8 h-8 rounded-full">
-                    <img src={productorSeleccionado.avatar || "/placeholder.svg"} alt={productorSeleccionado.nombre} />
-                  </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
+                <div
+                  style={{
+                    width: "2rem",
+                    height: "2rem",
+                    borderRadius: "9999px",
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
+                >
+                  <img
+                    src={productorSeleccionado.avatar || "/placeholder.svg"}
+                    alt={productorSeleccionado.nombre}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 </div>
                 <div>
-                  <p className="font-medium">{productorSeleccionado.nombre}</p>
-                  <p className="text-sm text-gray-500">{productorSeleccionado.email}</p>
+                  <p style={{ fontWeight: "500" }}>{productorSeleccionado.nombre}</p>
+                  <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>{productorSeleccionado.email}</p>
                 </div>
               </div>
             )}
 
-            <div className="grid gap-4 py-4">
-              <div className="flex items-center justify-between">
-                <label htmlFor="habilitar-cuenta" className="flex items-center gap-2">
+            <div style={{ display: "grid", gap: "1rem", padding: "1rem 0" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <label htmlFor="habilitar-cuenta" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   Cuenta Habilitada
                 </label>
-                <input
-                  type="checkbox"
-                  id="habilitar-cuenta"
-                  className="toggle"
-                  checked={estadoTemporal}
-                  onChange={(e) => setEstadoTemporal(e.target.checked)}
-                />
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="checkbox"
+                    id="habilitar-cuenta"
+                    checked={estadoTemporal}
+                    onChange={(e) => setEstadoTemporal(e.target.checked)}
+                    style={{
+                      ...styles.toggle,
+                      ...(estadoTemporal ? styles.toggleChecked : {}),
+                    }}
+                  />
+                  <span
+                    style={{
+                      ...styles.toggleBefore,
+                      ...(estadoTemporal ? styles.toggleCheckedBefore : {}),
+                    }}
+                  ></span>
+                </div>
               </div>
 
-              <div className="mt-2">
-                <label htmlFor="justificacion" className="block text-sm font-medium text-gray-700 mb-1">
+              <div style={{ marginTop: "0.5rem" }}>
+                <label
+                  htmlFor="justificacion"
+                  style={{
+                    display: "block",
+                    fontSize: "0.875rem",
+                    fontWeight: "500",
+                    color: "#374151",
+                    marginBottom: "0.25rem",
+                  }}
+                >
                   Justificación
                 </label>
                 <textarea
                   id="justificacion"
                   rows={3}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "0.375rem",
+                  }}
                   placeholder="Ingrese la justificación para este cambio de estado..."
                   value={justificacion}
                   onChange={(e) => setJustificacion(e.target.value)}
@@ -283,11 +554,19 @@ export default function GestionProductores() {
               </div>
             </div>
 
-            <div className="modal-action">
-              <button className="btn btn-outline" onClick={() => setDialogoEstadoAbierto(false)}>
+            <div style={styles.modalAction}>
+              <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setDialogoEstadoAbierto(false)}>
                 Cancelar
               </button>
-              <button className="btn btn-primary" onClick={guardarEstadoCuenta} disabled={!justificacion.trim()}>
+              <button
+                style={{
+                  ...styles.btn,
+                  ...styles.btnPrimary,
+                  ...(justificacion.trim() === "" ? styles.btnDisabled : {}),
+                }}
+                onClick={guardarEstadoCuenta}
+                disabled={justificacion.trim() === ""}
+              >
                 Guardar Cambios
               </button>
             </div>
