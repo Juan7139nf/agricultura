@@ -72,7 +72,7 @@ const Navegador = ({ expand, show, handleClose }) => {
                       Comerciante
                     </NavLink>
                     <NavDropdown.Divider />
-                    <NavLink className="dropdown-item" to={"/administracion"}>
+                    <NavLink className="dropdown-item" to={"/adminicio"}>
                       Administracion
                     </NavLink>
                   </NavDropdown>
