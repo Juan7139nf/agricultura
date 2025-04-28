@@ -8,6 +8,9 @@ import { Adminicio } from "../pages/admin/admininicio";
 import { ProductorInicio } from "../pages/productor/productorInicio";
 import { ProductorProductoCrear } from "../pages/productor/productosCrear";
 import { ProductorProductos } from "../pages/productor/productos";
+import { ProductorPedidos } from "../pages/productor/pedidos";
+import { ProductorEventos } from "../pages/productor/eventos";
+import { ProductorFacturacion } from "../pages/productor/facturacion";
 import { ProductorInicioUI } from "./ui/productor/productorInicioUI";
 import GestionUsuarios from "../pages/admin/gestionusuarios";
 import GestionProductores from "../pages/admin/gestionproduc";
@@ -41,10 +44,6 @@ const My_Routes = () => {
             <Route exact path="/productor" element={<ProductorInicio />} />
             <Route exact path="/productor/productos" element={<ProductorProductos />} />
             <Route exact path="/productor/productos/crear" element={<ProductorProductoCrear />} />
-            {/* Esto es un comentario en JSX 
-            <Route exact path="/" element={<ProductorInicioUI />} />
-            <Route exact path="/" element={<Inicio />} />
-            */}
           </Routes>
 
         </div>

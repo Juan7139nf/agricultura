@@ -18,46 +18,38 @@ const datos = [
   {
     url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
     nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
+    fechaInicio: "24 de noviembre de 2022",
+    fechaFin: "24 d noviembre de 2022",
     estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
+    createdAdd: "24 d noviembre de 2022",
   },
   {
     url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
     nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
+    fechaInicio: "24 de noviembre de 2022",
+    fechaFin: "24 d noviembre de 2022",
     estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
+    createdAdd: "24 d noviembre de 2022",
   },
   {
     url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
     nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
+    fechaInicio: "24 de noviembre de 2022",
+    fechaFin: "24 d noviembre de 2022",
     estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
+    createdAdd: "24 d noviembre de 2022",
   },
   {
     url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
     nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
+    fechaInicio: "24 de noviembre de 2022",
+    fechaFin: "24 d noviembre de 2022",
     estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
-  },
-  {
-    url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
-    nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
-    estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
+    createdAdd: "24 d noviembre de 2022",
   },
 ];
 
-export function ProductorProductos() {
+export function ProductorEventos() {
   const [usuarios, setUsuarios] = useState([]);
 
   useEffect(() => {
@@ -95,7 +87,7 @@ export function ProductorProductos() {
                   <div className="col-md-12">
                     <div className="d-md-flex justify-content-between align-items-center">
                       <div>
-                        <h2>Productos</h2>
+                        <h2>Eventos</h2>
                         <nav aria-label="migaja de pan" className="mb-0">
                           <ol className="breadcrumb">
                             <li className="breadcrumb-item">
@@ -110,18 +102,10 @@ export function ProductorProductos() {
                               className="breadcrumb-item active"
                               aria-current="page"
                             >
-                              Agregar producto
+                              Eventos
                             </li>
                           </ol>
                         </nav>
-                      </div>
-                      <div>
-                        <Link
-                          to={"/productor/productos/crear"}
-                          className="btn btn-primary fw-bolder"
-                        >
-                          Productos
-                        </Link>
                       </div>
                     </div>
                   </div>
@@ -137,7 +121,7 @@ export function ProductorProductos() {
                           <InputGroup>
                             <Form.Control
                               type="search"
-                              placeholder="Buscar productos"
+                              placeholder="Buscar eventos"
                             />
                           </InputGroup>
                         </Col>
@@ -163,13 +147,12 @@ export function ProductorProductos() {
                             <tr>
                               <th className="bg-secondary">Imagen</th>
                               <th className="bg-secondary">
-                                Nombre del producto
+                                Nombre del Evento
                               </th>
-                              <th className="bg-secondary">Categoría</th>
+                              <th className="bg-secondary">Fecha incio</th>
+                              <th className="bg-secondary">Estado final</th>
                               <th className="bg-secondary">Estado</th>
-                              <th className="bg-secondary">Precio</th>
                               <th className="bg-secondary">Creado en</th>
-                              <th className="bg-secondary"></th>
                             </tr>
                           </thead>
                           <tbody>
@@ -184,31 +167,15 @@ export function ProductorProductos() {
                                   />
                                 </td>
                                 <td>{e.nombre}</td>
-                                <td>{e.categoria}</td>
+                                <td>{e.fechaInicio}</td>
+                                <td>{e.fechaFin}</td>
+                                
                                 <td>
                                   <span className="badge bg-primary text-light">
                                     {e.estado}
                                   </span>
                                 </td>
-                                <td>{e.precio}</td>
                                 <td>{e.createdAdd}</td>
-                                <td>
-                                  <Dropdown>
-                                    <Dropdown.Toggle
-                                      split
-                                      variant="light"
-                                      id="dropdown-split-basic"
-                                    />
-                                    <Dropdown.Menu>
-                                      <Dropdown.Item href="#">
-                                        Editar
-                                      </Dropdown.Item>
-                                      <Dropdown.Item href="#">
-                                        Eliminar
-                                      </Dropdown.Item>
-                                    </Dropdown.Menu>
-                                  </Dropdown>
-                                </td>
                               </tr>
                             ))}
                           </tbody>
