@@ -4,7 +4,8 @@ import ListRoundedIcon from "@mui/icons-material/ListRounded";
 import { NavLink } from "react-router-dom";
 import Logout from "../../pages/authentication/logout";
 
-export function AdminNav() {//CAMBIAR EL PANEL A ADMIN
+export function AdminNav() {
+  //CAMBIAR EL PANEL A ADMIN
   const opciones = [
     { name: "Panel", url: "/productor" },
     { name: "Productos", url: "/productor/productos" },
@@ -64,7 +65,7 @@ export function AdminNav() {//CAMBIAR EL PANEL A ADMIN
               ))}
             </Nav.Item>
           </Nav>
-        <Logout/>
+          <Logout />
         </div>
       </div>
     </>

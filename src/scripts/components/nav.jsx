@@ -13,12 +13,37 @@ import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import ErrorRoundedIcon from "@mui/icons-material/ErrorRounded";
 import CrueltyFreeIcon from "@mui/icons-material/CrueltyFree";
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Logout from "../../pages/authentication/logout";
-import { obtenerUsuarioDeLocalStorage } from "../customs/localStorage";
+import {
+  obtenerUsuarioDeLocalStorage,
+  obtenerUsuarioDesdeFirebase,
+} from "../customs/localStorage";
 
 const Navegador = ({ expand, show, handleClose }) => {
-  const ini = obtenerUsuarioDeLocalStorage();
+  const [ini, setIni] = useState(null);
+
+  useEffect(() => {
+    const cargarUsuario = async () => {
+      const usuarioLocal = obtenerUsuarioDeLocalStorage();
+      if (usuarioLocal && usuarioLocal.uid) {
+        const usuarioActualizado = await obtenerUsuarioDesdeFirebase(
+          usuarioLocal.uid
+        );
+        if (usuarioActualizado) {
+          setIni(usuarioActualizado);
+          localStorage.setItem("user", JSON.stringify(usuarioActualizado));
+        } else {
+          console.log("El usuario no existe en Firebase");
+          localStorage.removeItem("user");
+          setIni(null);
+        }
+      }
+    };
+
+    cargarUsuario();
+  }, []);
+
   return (
     <>
       <Navbar key={expand} expand={expand} className="bg-body py-0 py-md-2">
@@ -60,23 +85,31 @@ const Navegador = ({ expand, show, handleClose }) => {
                     Categorias
                   </NavDropdown.Item>
                 </NavDropdown>
-                {ini && (
-                  <NavDropdown
-                    title="Panel administrativo"
-                    id={`offcanvasNavbarDropdown-expand-${expand}`}
-                  >
-                    <NavLink className="dropdown-item" to={"/productor"}>
-                      Productor
-                    </NavLink>
-                    <NavLink className="dropdown-item" to={"/comerciante"}>
-                      Comerciante
-                    </NavLink>
-                    <NavDropdown.Divider />
-                    <NavLink className="dropdown-item" to={"/adminicio"}>
-                      Administracion
-                    </NavLink>
-                  </NavDropdown>
-                )}
+                {ini &&
+                  ini.roles &&
+                  ini.roles.some((role) => role !== "cliente") && (
+                    <NavDropdown
+                      title="Panel administrativo"
+                      id={`offcanvasNavbarDropdown-expand-${expand}`}
+                    >
+                      {ini.roles.some((role) => role == "productor") && (
+                        <NavLink className="dropdown-item" to={"/productor"}>
+                          Productor
+                        </NavLink>
+                      )}
+                      {ini.roles.some((role) => role == "comerciante") && (
+                        <NavLink className="dropdown-item" to={"/comerciante"}>
+                          Comerciante
+                        </NavLink>
+                      )}
+                      <NavDropdown.Divider />
+                      {ini.roles.some((role) => role == "administrador") && (
+                        <NavLink className="dropdown-item" to={"/adminicio"}>
+                          Administracion
+                        </NavLink>
+                      )}
+                    </NavDropdown>
+                  )}
                 <Nav.Link href="/paneladmin">Eventos</Nav.Link>
               </Nav>
               <hr className="d-lg-none my-2 text-white-50"></hr>
