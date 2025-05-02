@@ -13,26 +13,11 @@ import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import ErrorRoundedIcon from "@mui/icons-material/ErrorRounded";
 import CrueltyFreeIcon from "@mui/icons-material/CrueltyFree";
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Logout from "../../pages/authentication/logout";
 import { obtenerUsuarioDeLocalStorage } from "../customs/localStorage";
-import { useNavigate } from "react-router-dom";
-import { Dropdown } from "react-bootstrap";
-import { signOut } from "firebase/auth";
-import { auth } from "../../scripts/firebase/firebase"; // o donde tengas tu configuración de Firebase
 
 const Navegador = ({ expand, show, handleClose }) => {
-  const navigate = useNavigate();
-
-const handleLogout = async () => {
-  try {
-    await signOut(auth);
-    localStorage.clear(); // limpia también el rol guardado
-    navigate("/");
-  } catch (error) {
-    console.error("Error al cerrar sesión:", error);
-  }
-};
   const ini = obtenerUsuarioDeLocalStorage();
   return (
     <>
@@ -75,23 +60,31 @@ const handleLogout = async () => {
                     Categorias
                   </NavDropdown.Item>
                 </NavDropdown>
-                {ini && (
-                  <NavDropdown
-                    title="Panel administrativo"
-                    id={`offcanvasNavbarDropdown-expand-${expand}`}
-                  >
-                    <NavLink className="dropdown-item" to={"/productor"}>
-                      Productor
-                    </NavLink>
-                    <NavLink className="dropdown-item" to={"/comerciante"}>
-                      Comerciante
-                    </NavLink>
-                    <NavDropdown.Divider />
-                    <NavLink className="dropdown-item" to={"/adminicio"}>
-                      Administracion
-                    </NavLink>
-                  </NavDropdown>
-                )}
+                {ini &&
+                  ini.roles &&
+                  ini.roles.some((role) => role !== "cliente") && (
+                    <NavDropdown
+                      title="Panel administrativo"
+                      id={`offcanvasNavbarDropdown-expand-${expand}`}
+                    >
+                      {ini.roles.some((role) => role == "productor") && (
+                        <NavLink className="dropdown-item" to={"/productor"}>
+                          Productor
+                        </NavLink>
+                      )}
+                      {ini.roles.some((role) => role == "comerciante") && (
+                        <NavLink className="dropdown-item" to={"/comerciante"}>
+                          Comerciante
+                        </NavLink>
+                      )}
+                      <NavDropdown.Divider />
+                      {ini.roles.some((role) => role == "administrador") && (
+                        <NavLink className="dropdown-item" to={"/adminicio"}>
+                          Administracion
+                        </NavLink>
+                      )}
+                    </NavDropdown>
+                  )}
                 <Nav.Link href="/paneladmin">Eventos</Nav.Link>
               </Nav>
               <hr className="d-lg-none my-2 text-white-50"></hr>

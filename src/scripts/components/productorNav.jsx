@@ -37,6 +37,7 @@ export function ProductorNav() {
                 </NavLink>
               ))}
             </Nav.Item>
+            <Logout/>
           </Nav>
         </Offcanvas.Body>
       </Offcanvas>

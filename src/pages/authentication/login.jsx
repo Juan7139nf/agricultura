@@ -11,7 +11,8 @@ import {
 } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../../scripts/firebase/firebase";
+import { ref, get, set } from "firebase/database";
+import { auth, provider, database } from "../../scripts/firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import GoogleIcon from "@mui/icons-material/Google";
 
@@ -22,8 +23,34 @@ const Login = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      localStorage.setItem("user", JSON.stringify(user));
       console.log("Usuario autenticado:", user);
+
+      const userRef = ref(database, `usuarios/${user.uid}`);
+      const snapshot = await get(userRef);
+
+      let userData;
+
+      if (!snapshot.exists()) {
+        userData = {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          emailVerified: user.emailVerified,
+          photoURL: user.photoURL,
+          providerData: user.providerData,
+          roles: ["cliente"],
+          createdAt: user.metadata.creationTime,
+          lastLoginAt: user.metadata.lastSignInTime,
+          isAnonymous: user.isAnonymous,
+        };
+        await set(userRef, userData);
+        console.log("Usuario nuevo guardado en la base de datos");
+      } else {
+        userData = snapshot.val();
+        console.log("Datos del usuario cargados desde la base de datos");
+      }
+
+      localStorage.setItem("user", JSON.stringify(userData));
 
       window.location.href = "/";
     } catch (error) {
@@ -54,7 +81,8 @@ const Login = () => {
                   <div className="mb-lg-9 mb-4">
                     <h1 className="mb-2 h2 fw-bold">Inicia sesión</h1>
                     <p>
-                      ¡Bienvenido de nuevo! Introduce tu correo electrónico para empezar.
+                      ¡Bienvenido de nuevo! Introduce tu correo electrónico para
+                      empezar.
                     </p>
                   </div>
 
