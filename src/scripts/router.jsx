@@ -18,6 +18,10 @@ import GestionProductores from "../pages/admin/gestionproduc";
 import GestionEvento from "../pages/admin/gestionevento";
 import GestionPedido from "../pages/admin/gestionpedido";
 import GestionProductos from "../pages/admin/gestionproductos";
+import { ProductorProductoEditar } from "../pages/productor/productosEditar";
+import DetalleProductoDiseño from "../pages/cliente/detalleproductodiseño";
+import { ProductosClient } from "../pages/cliente/productos";
+import { CarritoIndex } from "../pages/cliente/cart";
 
 const My_Routes = () => {
   return (
@@ -29,13 +33,26 @@ const My_Routes = () => {
         <div className="border-top">
           <Routes>
             <Route exact path="/" element={<Inicio />} />
-            <Route exact path="/adminicio" element={<Adminicio />}/>
-            <Route exact path="/gestionproductores" element={<GestionProductores/>}/>
-            <Route exact path="/gestionevento" element={<GestionEvento/>}/>
-            <Route exact path="/productos" element={<GestionProductos />}/>
+            <Route exact path="/productos" element={<ProductosClient />} />
+
+            <Route exact path="/cart" element={<CarritoIndex />} />
+            <Route
+              exact
+              path="/detalle/:id"
+              element={<DetalleProductoDiseño />}
+            />
+
+            <Route exact path="/adminicio" element={<Adminicio />} />
+            <Route
+              exact
+              path="/gestionproductores"
+              element={<GestionProductores />}
+            />
+            <Route exact path="/gestionevento" element={<GestionEvento />} />
+            <Route exact path="/productos" element={<GestionProductos />} />
             <Route path="/gestionpedido" element={<GestionPedido />} />
             <Route exact path="/login" element={<Login />} />
-            <Route exact path="/paneladmin" element={<Adminicio />}/>
+            <Route exact path="/paneladmin" element={<Adminicio />} />
             <Route exact path="/productor" element={<ProductorInicio />} />
             <Route
               exact

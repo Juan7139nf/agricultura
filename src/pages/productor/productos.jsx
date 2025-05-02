@@ -149,7 +149,7 @@ export function ProductorProductos() {
                                     style={{ width: "50px" }}
                                   />
                                 </td>
-                                <td>{e.nombre}</td>
+                                <td><NavLink to={`/detalle/${e.id}`}>{e.nombre}</NavLink></td>
                                 <td>{e.categoria}</td>
                                 <td>
                                   <span className="badge bg-primary text-light">

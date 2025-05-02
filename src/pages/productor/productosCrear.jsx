@@ -43,7 +43,7 @@ export function ProductorProductoCrear() {
     formData.append("imagen", foto);
 
     try {
-      const response = await fetch("http://localhost/api/upload.php", {
+      const response = await fetch("/api/upload.php", {
         method: "POST",
         body: formData,
       });
@@ -51,7 +51,7 @@ export function ProductorProductoCrear() {
       const data = await response.json();
 
       if (data.ruta) {
-        const imagenUrl = `http://localhost/api/${data.ruta}`;
+        const imagenUrl = `/api/${data.ruta}`;
 
         const dataRef = ref(database, "productos");
         await push(dataRef, {

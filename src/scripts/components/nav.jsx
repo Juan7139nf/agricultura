@@ -1,6 +1,7 @@
 import {
   Button,
   Container,
+  Dropdown,
   Form,
   Nav,
   Navbar,
@@ -14,11 +15,35 @@ import ErrorRoundedIcon from "@mui/icons-material/ErrorRounded";
 import CrueltyFreeIcon from "@mui/icons-material/CrueltyFree";
 import { NavLink } from "react-router-dom";
 import { useActionState, useEffect, useState } from "react";
-import Logout from "../../pages/authentication/logout";
+import Logout, { handleLogout } from "../../pages/authentication/logout";
 import { obtenerUsuarioDeLocalStorage } from "../customs/localStorage";
+import { getAuth } from "firebase/auth";
+import { database, onValue, ref } from "../firebase/firebase";
 
 const Navegador = ({ expand, show, handleClose }) => {
   const ini = obtenerUsuarioDeLocalStorage();
+  const [iniC, setIni] = useState(null); // estado para los datos del usuario
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    if (!ini) return;
+
+    const userRef = ref(database, `usuarios/${ini.uid}`);
+
+    const unsubscribe = onValue(userRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const datos = snapshot.val();
+        setIni(datos); // actualiza el estado ini con los datos del usuario
+      } else {
+        console.warn("Usuario no encontrado en la base de datos.");
+        setIni(null);
+      }
+    });
+
+    return () => unsubscribe(); // limpia el listener cuando el componente se desmonta
+  }, [user]);
+
   return (
     <>
       <Navbar key={expand} expand={expand} className="bg-body py-0 py-md-2">
@@ -44,7 +69,9 @@ const Navegador = ({ expand, show, handleClose }) => {
                 <NavLink className="nav-link" to={"/"}>
                   Inicio
                 </NavLink>
-                <Nav.Link href="#action1">Productos</Nav.Link>
+                <NavLink className="nav-link" to={"/productos"}>
+                  Productos
+                </NavLink>
                 <NavDropdown
                   title="Filtrar"
                   id={`offcanvasNavbarDropdown-expand-${expand}`}
@@ -73,7 +100,7 @@ const Navegador = ({ expand, show, handleClose }) => {
                         </NavLink>
                       )}
                       {ini.roles.some((role) => role == "comerciante") && (
-                        <NavLink className="dropdown-item" to={"/comerciante"}>
+                        <NavLink className="dropdown-item" to={"/productor"}>
                           Comerciante
                         </NavLink>
                       )}
@@ -89,9 +116,35 @@ const Navegador = ({ expand, show, handleClose }) => {
               </Nav>
               <hr className="d-lg-none my-2 text-white-50"></hr>
               <Nav className="justify-content-end">
-
                 {ini ? (
                   <>
+                    <NavLink
+                      className="nav-link d-flex position-relative me-3"
+                      to={"/cart"}
+                    >
+                      <ShoppingCartRoundedIcon />
+                      <span className="d-block d-md-none ms-1">Carrito</span>
+                      {iniC?.carrito && (
+                        <>
+                          <span className="custom-badge position-absolute start-100 translate-middle badge rounded-pill bg-success d-none d-md-block">
+                            {iniC?.carrito
+                              ? Object.values(iniC.carrito).reduce(
+                                  (total, prod) => total + (prod.cantidad || 0),
+                                  0
+                                )
+                              : 0}
+                          </span>
+                          <span className="ms-2 fw-bolder px-2 rounded-pill bg-success d-block d-md-none">
+                            {iniC?.carrito
+                              ? Object.values(iniC.carrito).reduce(
+                                  (total, prod) => total + (prod.cantidad || 0),
+                                  0
+                                )
+                              : 0}
+                          </span>
+                        </>
+                      )}
+                    </NavLink>
                     <Dropdown align="end">
                       <Dropdown.Toggle
                         variant="link"
@@ -111,14 +164,18 @@ const Navegador = ({ expand, show, handleClose }) => {
                             <AccountCircleRoundedIcon fontSize="large" />
                           </div>
                         )}
-                        <span className="d-block d-md-none ms-1 my-auto">{ini.displayName}</span>
+                        <span className="d-block d-md-none ms-1 my-auto">
+                          {ini.displayName}
+                        </span>
                       </Dropdown.Toggle>
 
                       <Dropdown.Menu>
                         <Dropdown.Item disabled>Editar perfil</Dropdown.Item>
                         <Dropdown.Item disabled>Configuraciones</Dropdown.Item>
                         <Dropdown.Divider />
-                        <Dropdown.Item onClick={handleLogout}>Cerrar sesión</Dropdown.Item>
+                        <Dropdown.Item onClick={handleLogout}>
+                          Cerrar sesión
+                        </Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </>
