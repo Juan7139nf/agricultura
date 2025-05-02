@@ -1,578 +1,234 @@
 "use client"
 
-import { useState } from "react"
-import { NavLink } from "react-router-dom"
-import { MoreVertical, Search, Shield, UserCog } from "lucide-react"
-
-// Datos de ejemplo - solo usuarios tipo "productor"
-const productores = [
-  {
-    id: "3",
-    nombre: "John Mattox",
-    email: "johnmattox@gmail.com",
-    fechaCompra: "27 Abril, 2023 a las 2:47pm",
-    telefono: "347-424-9526",
-    gastado: "$29.00",
-    tipo: "productor",
-    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-8.jpg",
-    cuentaHabilitada: true,
-  },
-  {
-    id: "6",
-    nombre: "Ricardo Méndez",
-    email: "ricardomendez@gmail.com",
-    fechaCompra: "18 Marzo, 2023 a las 2:47pm",
-    telefono: "410-636-2682",
-    gastado: "$490.00",
-    tipo: "productor",
-    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-8.jpg",
-    cuentaHabilitada: true,
-  },
-  {
-    id: "9",
-    nombre: "Carlos Ramírez",
-    email: "carlosramirez@gmail.com",
-    fechaCompra: "27 Abril, 2023 a las 2:47pm",
-    telefono: "347-424-9526",
-    gastado: "$29.00",
-    tipo: "productor",
-    avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-8.jpg",
-    cuentaHabilitada: false,
-  },
-]
+import { useEffect, useState } from "react"
+import { ref, onValue, update } from "firebase/database"
+import { database } from "../../scripts/firebase/firebase"
+import { AdminNav } from "../../scripts/components/adminNav"
 
 export default function GestionProductores() {
+  const [productores, setProductores] = useState([])
   const [terminoBusqueda, setTerminoBusqueda] = useState("")
   const [paginaActual, setPaginaActual] = useState(1)
-  const [productorSeleccionado, setProductorSeleccionado] = useState(null)
-  const [dialogoEstadoAbierto, setDialogoEstadoAbierto] = useState(false)
-  const [estadoTemporal, setEstadoTemporal] = useState(false)
-  const [justificacion, setJustificacion] = useState("")
-  const [menuAbierto, setMenuAbierto] = useState(null)
+  const [rolSeleccionado, setRolSeleccionado] = useState("todos")
+  const [usuarioEditando, setUsuarioEditando] = useState(null)
+  const [nuevosRoles, setNuevosRoles] = useState([])
+
+  useEffect(() => {
+    const usuariosRef = ref(database, "usuarios")
+
+    const unsubscribe = onValue(usuariosRef, (snapshot) => {
+      const data = snapshot.val()
+      if (data) {
+        const listaUsuarios = Object.entries(data).map(([id, usuario]) => ({
+          id,
+          ...usuario,
+        }))
+        setProductores(listaUsuarios)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   const elementosPorPagina = 10
 
-  // Filtrar productores según el término de búsqueda
-  const productoresFiltrados = productores.filter((productor) => {
-    const coincideBusqueda =
-      productor.nombre.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
-      productor.email.toLowerCase().includes(terminoBusqueda.toLowerCase())
+  const productoresFiltrados = productores
+    .filter(
+      (productor) =>
+        productor.displayName?.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
+        productor.email?.toLowerCase().includes(terminoBusqueda.toLowerCase())
+    )
+    .filter((productor) =>
+      rolSeleccionado === "todos" ? true : productor.roles?.includes(rolSeleccionado)
+    )
 
-    return coincideBusqueda
-  })
-
-  // Calcular paginación
   const totalPaginas = Math.ceil(productoresFiltrados.length / elementosPorPagina)
   const productoresPaginados = productoresFiltrados.slice(
     (paginaActual - 1) * elementosPorPagina,
-    paginaActual * elementosPorPagina,
+    paginaActual * elementosPorPagina
   )
 
-  // Función para abrir el diálogo de estado de cuenta
-  const abrirDialogoEstado = (productor) => {
-    setProductorSeleccionado(productor)
-    setEstadoTemporal(productor.cuentaHabilitada)
-    setJustificacion("")
-    setDialogoEstadoAbierto(true)
-    setMenuAbierto(null) // Cerrar el menú al abrir el diálogo
-  }
+  const manejarActualizacionRoles = async (usuarioId) => {
+    try {
+      if (!usuarioId) {
+        console.error("ID de usuario no válido")
+        alert("Error: ID de usuario no válido")
+        return
+      }
 
-  // Función para guardar el estado de la cuenta
-  const guardarEstadoCuenta = () => {
-    if (productorSeleccionado) {
-      // En una aplicación real, aquí enviarías los cambios a la API
-      console.log(`Cambiando estado de cuenta para ${productorSeleccionado.nombre}:`, {
-        habilitada: estadoTemporal,
-        justificacion: justificacion,
+      const usuarioRef = ref(database, `usuarios/${usuarioId}`)
+
+      await update(usuarioRef, {
+        roles: nuevosRoles,
       })
 
-      // Cerrar el diálogo
-      setDialogoEstadoAbierto(false)
-    }
-  }
+      setProductores((prev) =>
+        prev.map((prod) => (prod.id === usuarioId ? { ...prod, roles: [...nuevosRoles] } : prod))
+      )
 
-  // Función para alternar el menú desplegable
-  const toggleMenu = (id) => {
-    if (menuAbierto === id) {
-      setMenuAbierto(null)
-    } else {
-      setMenuAbierto(id)
+      alert("Roles actualizados con éxito")
+      setUsuarioEditando(null)
+    } catch (error) {
+      console.error("Error al actualizar roles:", error)
+      alert("Error al actualizar los roles: " + error.message)
     }
-  }
-
-  // Estilos en línea
-  const styles = {
-    badge: {
-      display: "inline-flex",
-      alignItems: "center",
-      padding: "0.25rem 0.5rem",
-      borderRadius: "9999px",
-      fontSize: "0.75rem",
-      fontWeight: "500",
-    },
-    badgeGreen: {
-      backgroundColor: "#dcfce7",
-      color: "#166534",
-    },
-    badgeRed: {
-      backgroundColor: "#fee2e2",
-      color: "#991b1b",
-    },
-    btn: {
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "0.5rem 1rem",
-      borderRadius: "0.375rem",
-      fontWeight: "500",
-      cursor: "pointer",
-      transition: "all 0.2s",
-      border: "none",
-    },
-    btnGhost: {
-      backgroundColor: "transparent",
-      padding: "0.25rem",
-    },
-    btnOutline: {
-      backgroundColor: "transparent",
-      border: "1px solid #e2e8f0",
-    },
-    btnPrimary: {
-      backgroundColor: "#3b82f6",
-      color: "white",
-    },
-    btnDisabled: {
-      backgroundColor: "#93c5fd",
-      cursor: "not-allowed",
-    },
-    dropdown: {
-      position: "relative",
-      display: "inline-block",
-    },
-    dropdownContent: {
-      display: "block",
-      position: "absolute",
-      right: "0",
-      backgroundColor: "white",
-      minWidth: "10rem",
-      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-      borderRadius: "0.375rem",
-      zIndex: "10",
-      border: "1px solid #e2e8f0",
-    },
-    dropdownHidden: {
-      display: "none",
-    },
-    menuItem: {
-      display: "block",
-      padding: "0.5rem 1rem",
-      cursor: "pointer",
-      color: "#374151",
-      textAlign: "left",
-      width: "100%",
-      backgroundColor: "transparent",
-      border: "none",
-      fontSize: "0.875rem",
-    },
-    menuItemHover: {
-      backgroundColor: "#f3f4f6",
-    },
-    menuItemDanger: {
-      color: "#dc2626",
-    },
-    divider: {
-      height: "1px",
-      backgroundColor: "#e2e8f0",
-      margin: "0.25rem 0",
-    },
-    modal: {
-      position: "fixed",
-      top: "0",
-      left: "0",
-      width: "100%",
-      height: "100%",
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: "50",
-    },
-    modalBox: {
-      backgroundColor: "white",
-      borderRadius: "0.5rem",
-      padding: "1.5rem",
-      width: "100%",
-      maxWidth: "32rem",
-    },
-    modalAction: {
-      display: "flex",
-      justifyContent: "flex-end",
-      gap: "0.5rem",
-      marginTop: "1.5rem",
-    },
-    toggle: {
-      appearance: "none",
-      width: "3rem",
-      height: "1.5rem",
-      backgroundColor: "#e2e8f0",
-      borderRadius: "9999px",
-      position: "relative",
-      cursor: "pointer",
-      transition: "all 0.2s",
-    },
-    toggleChecked: {
-      backgroundColor: "#3b82f6",
-    },
-    toggleBefore: {
-      content: '""',
-      position: "absolute",
-      width: "1rem",
-      height: "1rem",
-      borderRadius: "50%",
-      backgroundColor: "white",
-      top: "0.25rem",
-      left: "0.25rem",
-      transition: "all 0.2s",
-    },
-    toggleCheckedBefore: {
-      left: "1.75rem",
-    },
-    menuIcon: {
-      marginRight: "0.5rem",
-    },
   }
 
   return (
-    <div style={{ padding: "1.5rem" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ fontSize: "1.875rem", fontWeight: "bold" }}>Gestión de Productores</h1>
-
-          {/* Breadcrumbs con NavLink */}
-          <div style={{ display: "flex", gap: "0.5rem", fontSize: "0.875rem", color: "#6b7280" }}>
-            <NavLink to="/admin" style={({ isActive }) => (isActive ? { color: "#3b82f6", fontWeight: "600" } : {})}>
-              Panel
-            </NavLink>
-            <span> / </span>
-            <NavLink
-              to="/admin/productores"
-              style={({ isActive }) => (isActive ? { color: "#3b82f6", fontWeight: "600" } : {})}
-            >
-              Productores
-            </NavLink>
-          </div>
+    <div className="container-md">
+      <div className="row">
+        <div className="col-lg-3 col-md-4 col-12">
+          <AdminNav />
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-          <div style={{ position: "relative", width: "100%", maxWidth: "33.333333%" }}>
-            <Search
-              style={{
-                position: "absolute",
-                left: "0.75rem",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "#9ca3af",
-              }}
-              size={18}
-            />
+        <div className="col-lg-9 col-md-8 col-12 py-4 p-md-5 p-lg-6">
+          <h1 className="mb-4">Gestión de Productores</h1>
+
+          <div className="card p-4 shadow-sm rounded-4 mb-5">
             <input
+              className="form-control mb-3"
               type="text"
               placeholder="Buscar productores..."
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                paddingLeft: "2.5rem",
-                border: "1px solid #e2e8f0",
-                borderRadius: "0.375rem",
-              }}
               value={terminoBusqueda}
               onChange={(e) => setTerminoBusqueda(e.target.value)}
             />
           </div>
-        </div>
 
-        {/* Tabla de productores */}
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
-                  <input type="checkbox" />
-                </th>
-                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Nombre</th>
-                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Email</th>
-                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
-                  Fecha de Compra
-                </th>
-                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Teléfono</th>
-                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Gastado</th>
-                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Estado</th>
-                <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {productoresPaginados.map((productor) => (
-                <tr key={productor.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                  <td style={{ padding: "0.75rem" }}>
-                    <input type="checkbox" />
-                  </td>
-                  <td style={{ padding: "0.75rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <div
-                        style={{
-                          width: "2.5rem",
-                          height: "2.5rem",
-                          borderRadius: "9999px",
-                          overflow: "hidden",
-                          position: "relative",
-                        }}
-                      >
-                        <img
-                          src={productor.avatar || "/placeholder.svg"}
-                          alt={productor.nombre}
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
-                      </div>
-                      <span style={{ fontWeight: "500" }}>{productor.nombre}</span>
-                    </div>
-                  </td>
-                  <td style={{ padding: "0.75rem" }}>{productor.email}</td>
-                  <td style={{ padding: "0.75rem" }}>{productor.fechaCompra}</td>
-                  <td style={{ padding: "0.75rem" }}>{productor.telefono || "-"}</td>
-                  <td style={{ padding: "0.75rem" }}>{productor.gastado}</td>
-                  <td style={{ padding: "0.75rem" }}>
-                    <span
-                      style={{
-                        ...styles.badge,
-                        ...(productor.cuentaHabilitada ? styles.badgeGreen : styles.badgeRed),
-                      }}
-                    >
-                      {productor.cuentaHabilitada ? "Habilitada" : "Deshabilitada"}
-                    </span>
-                  </td>
-                  <td style={{ padding: "0.75rem" }}>
-                    <div style={styles.dropdown}>
-                      <button
-                        onClick={() => toggleMenu(productor.id)}
-                        style={{ ...styles.btn, ...styles.btnGhost }}
-                        aria-label="Opciones"
-                      >
-                        <MoreVertical size={16} />
-                      </button>
-                      <div
-                        style={
-                          menuAbierto === productor.id
-                            ? styles.dropdownContent
-                            : { ...styles.dropdownContent, ...styles.dropdownHidden }
-                        }
-                      >
-                        <button
-                          style={styles.menuItem}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = styles.menuItemHover.backgroundColor
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = "transparent"
-                          }}
-                        >
-                          Ver detalles
-                        </button>
-                        <button
-                          style={styles.menuItem}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = styles.menuItemHover.backgroundColor
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = "transparent"
-                          }}
-                        >
-                          Editar productor
-                        </button>
-                        <div style={styles.divider}></div>
-                        <button
-                          style={styles.menuItem}
-                          onClick={() => abrirDialogoEstado(productor)}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = styles.menuItemHover.backgroundColor
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = "transparent"
-                          }}
-                        >
-                          <UserCog size={16} style={styles.menuIcon} />
-                          Gestionar estado
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Paginación */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "1rem" }}>
-          <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-            Mostrando {(paginaActual - 1) * elementosPorPagina + 1} a{" "}
-            {Math.min(paginaActual * elementosPorPagina, productoresFiltrados.length)} de {productoresFiltrados.length}{" "}
-            entradas
-          </p>
-
-          <div style={{ display: "flex", gap: "0.25rem" }}>
-            <button
-              style={{
-                ...styles.btn,
-                ...styles.btnOutline,
-                padding: "0.25rem 0.5rem",
-                fontSize: "0.875rem",
-              }}
-              onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
-              disabled={paginaActual === 1}
-            >
-              Anterior
-            </button>
-
-            {Array.from({ length: Math.min(totalPaginas, 5) }, (_, i) => (
+          <div className="mb-4">
+            {["todos", "cliente", "comerciante", "productor"].map((rol) => (
               <button
-                key={i}
-                style={{
-                  ...styles.btn,
-                  ...(paginaActual === i + 1 ? styles.btnPrimary : styles.btnOutline),
-                  padding: "0.25rem 0.5rem",
-                  fontSize: "0.875rem",
-                }}
-                onClick={() => setPaginaActual(i + 1)}
+                key={rol}
+                className={`btn ${rolSeleccionado === rol ? "btn-primary" : "btn-outline-primary"} me-2`}
+                onClick={() => setRolSeleccionado(rol)}
               >
-                {i + 1}
+                {rol.charAt(0).toUpperCase() + rol.slice(1)}
               </button>
             ))}
-
-            <button
-              style={{
-                ...styles.btn,
-                ...styles.btnOutline,
-                padding: "0.25rem 0.5rem",
-                fontSize: "0.875rem",
-              }}
-              onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
-              disabled={paginaActual === totalPaginas}
-            >
-              Siguiente
-            </button>
           </div>
+
+          <div className="row">
+            {productoresPaginados.map((prod, idx) => (
+              <div key={idx} className="col-md-6 mb-4">
+                <div className="card p-3 shadow-sm rounded-4">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center">
+                      <img
+                        src={prod.photoURL || "/placeholder.svg"}
+                        alt="avatar"
+                        width={40}
+                        className="rounded-circle"
+                      />
+                      <div className="ms-3">
+                        <strong>{prod.displayName || "Sin nombre"}</strong>
+                        <div>{prod.email}</div>
+                        <div className="mt-1">
+                          {prod.roles?.map((rol, i) => (
+                            <span key={i} className="badge bg-primary me-1">
+                              {rol}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-sm btn-light"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                      >
+                        ⋮
+                      </button>
+                      <ul className="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <button className="dropdown-item" onClick={() => alert(`Ver perfil de ${prod.displayName}`)}>
+                            Ver perfil
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => {
+                              setUsuarioEditando(prod)
+                              setNuevosRoles(prod.roles || [])
+                            }}
+                          >
+                            Editar roles
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Modal de edición de roles */}
+          {usuarioEditando && (
+            <div
+              className="modal fade show"
+              tabIndex="-1"
+              style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+            >
+              <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Editar Roles de {usuarioEditando.displayName}</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={() => {
+                        setUsuarioEditando(null)
+                        setNuevosRoles([])
+                      }}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <p>ID: {usuarioEditando.id}</p>
+                    {["cliente", "comerciante", "productor"].map((rol) => (
+                      <div className="form-check" key={rol}>
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id={`rol-${rol}`}
+                          checked={nuevosRoles.includes(rol)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setNuevosRoles((prev) => [...prev, rol])
+                            } else {
+                              setNuevosRoles((prev) => prev.filter((r) => r !== rol))
+                            }
+                          }}
+                        />
+                        <label className="form-check-label" htmlFor={`rol-${rol}`}>
+                          {rol.charAt(0).toUpperCase() + rol.slice(1)}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setUsuarioEditando(null)
+                        setNuevosRoles([])
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => manejarActualizacionRoles(usuarioEditando.id)}
+                    >
+                      Guardar cambios
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Diálogo de estado de cuenta */}
-      {dialogoEstadoAbierto && (
-        <div style={styles.modal}>
-          <div style={styles.modalBox}>
-            <h3
-              style={{ fontWeight: "bold", fontSize: "1.125rem", display: "flex", alignItems: "center", gap: "0.5rem" }}
-            >
-              <Shield size={20} />
-              Gestionar Estado de Cuenta
-            </h3>
-
-            {productorSeleccionado && (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
-                <div
-                  style={{
-                    width: "2rem",
-                    height: "2rem",
-                    borderRadius: "9999px",
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                >
-                  <img
-                    src={productorSeleccionado.avatar || "/placeholder.svg"}
-                    alt={productorSeleccionado.nombre}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </div>
-                <div>
-                  <p style={{ fontWeight: "500" }}>{productorSeleccionado.nombre}</p>
-                  <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>{productorSeleccionado.email}</p>
-                </div>
-              </div>
-            )}
-
-            <div style={{ display: "grid", gap: "1rem", padding: "1rem 0" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <label htmlFor="habilitar-cuenta" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  Cuenta Habilitada
-                </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type="checkbox"
-                    id="habilitar-cuenta"
-                    checked={estadoTemporal}
-                    onChange={(e) => setEstadoTemporal(e.target.checked)}
-                    style={{
-                      ...styles.toggle,
-                      ...(estadoTemporal ? styles.toggleChecked : {}),
-                    }}
-                  />
-                  <span
-                    style={{
-                      ...styles.toggleBefore,
-                      ...(estadoTemporal ? styles.toggleCheckedBefore : {}),
-                    }}
-                  ></span>
-                </div>
-              </div>
-
-              <div style={{ marginTop: "0.5rem" }}>
-                <label
-                  htmlFor="justificacion"
-                  style={{
-                    display: "block",
-                    fontSize: "0.875rem",
-                    fontWeight: "500",
-                    color: "#374151",
-                    marginBottom: "0.25rem",
-                  }}
-                >
-                  Justificación
-                </label>
-                <textarea
-                  id="justificacion"
-                  rows={3}
-                  style={{
-                    width: "100%",
-                    padding: "0.5rem",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "0.375rem",
-                  }}
-                  placeholder="Ingrese la justificación para este cambio de estado..."
-                  value={justificacion}
-                  onChange={(e) => setJustificacion(e.target.value)}
-                  required
-                ></textarea>
-              </div>
-            </div>
-
-            <div style={styles.modalAction}>
-              <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setDialogoEstadoAbierto(false)}>
-                Cancelar
-              </button>
-              <button
-                style={{
-                  ...styles.btn,
-                  ...styles.btnPrimary,
-                  ...(justificacion.trim() === "" ? styles.btnDisabled : {}),
-                }}
-                onClick={guardarEstadoCuenta}
-                disabled={justificacion.trim() === ""}
-              >
-                Guardar Cambios
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

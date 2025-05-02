@@ -15,35 +15,10 @@ import CrueltyFreeIcon from "@mui/icons-material/CrueltyFree";
 import { NavLink } from "react-router-dom";
 import { useActionState, useEffect, useState } from "react";
 import Logout from "../../pages/authentication/logout";
-import {
-  obtenerUsuarioDeLocalStorage,
-  obtenerUsuarioDesdeFirebase,
-} from "../customs/localStorage";
+import { obtenerUsuarioDeLocalStorage } from "../customs/localStorage";
 
 const Navegador = ({ expand, show, handleClose }) => {
-  const [ini, setIni] = useState(null);
-
-  useEffect(() => {
-    const cargarUsuario = async () => {
-      const usuarioLocal = obtenerUsuarioDeLocalStorage();
-      if (usuarioLocal && usuarioLocal.uid) {
-        const usuarioActualizado = await obtenerUsuarioDesdeFirebase(
-          usuarioLocal.uid
-        );
-        if (usuarioActualizado) {
-          setIni(usuarioActualizado);
-          localStorage.setItem("user", JSON.stringify(usuarioActualizado));
-        } else {
-          console.log("El usuario no existe en Firebase");
-          localStorage.removeItem("user");
-          setIni(null);
-        }
-      }
-    };
-
-    cargarUsuario();
-  }, []);
-
+  const ini = obtenerUsuarioDeLocalStorage();
   return (
     <>
       <Navbar key={expand} expand={expand} className="bg-body py-0 py-md-2">
@@ -114,53 +89,38 @@ const Navegador = ({ expand, show, handleClose }) => {
               </Nav>
               <hr className="d-lg-none my-2 text-white-50"></hr>
               <Nav className="justify-content-end">
-                <NavLink
-                  className="nav-link d-flex position-relative"
-                  to={"/cart"}
-                >
-                  <ShoppingCartRoundedIcon />
-                  <span className="d-block d-md-none ms-1">Carrito</span>
-                  <span className="custom-badge position-absolute start-100 translate-middle badge rounded-pill bg-success d-none d-md-block">
-                    44
-                  </span>
-                  <span className="ms-2 fw-bolder px-2 rounded-pill bg-success d-block d-md-none">
-                    44
-                  </span>
-                </NavLink>
-                <Nav.Link
-                  className="nav-link d-flex position-relative"
-                  href="#action1"
-                >
-                  <NotificationsRoundedIcon />
-                  <span className="d-block d-md-none ms-1">Notificaciones</span>
-                </Nav.Link>
+
                 {ini ? (
                   <>
-                    <Nav.Link
-                      className="nav-link d-flex position-relative py-0 align-content-center"
-                      href="#action1"
-                    >
-                      {ini.photoURL ? (
-                        <img
-                          src={ini.photoURL}
-                          alt=""
-                          width={40}
-                          height={40}
-                          className="rounded-circle"
-                        />
-                      ) : (
-                        <div
-                          className="align-content-center"
-                          style={{ minHeight: "40px" }}
-                        >
-                          <AccountCircleRoundedIcon />
-                        </div>
-                      )}
+                    <Dropdown align="end">
+                      <Dropdown.Toggle
+                        variant="link"
+                        className="nav-link d-flex position-relative py-0 align-content-center border-0 bg-transparent"
+                        id="dropdown-user"
+                      >
+                        {ini.photoURL ? (
+                          <img
+                            src={ini.photoURL}
+                            alt="Usuario"
+                            width={40}
+                            height={40}
+                            className="rounded-circle"
+                          />
+                        ) : (
+                          <div style={{ minHeight: "40px" }}>
+                            <AccountCircleRoundedIcon fontSize="large" />
+                          </div>
+                        )}
+                        <span className="d-block d-md-none ms-1 my-auto">{ini.displayName}</span>
+                      </Dropdown.Toggle>
 
-                      <span className="d-block d-md-none ms-1 my-auto">
-                        {ini.displayName}
-                      </span>
-                    </Nav.Link>
+                      <Dropdown.Menu>
+                        <Dropdown.Item disabled>Editar perfil</Dropdown.Item>
+                        <Dropdown.Item disabled>Configuraciones</Dropdown.Item>
+                        <Dropdown.Divider />
+                        <Dropdown.Item onClick={handleLogout}>Cerrar sesión</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
                   </>
                 ) : (
                   <>
