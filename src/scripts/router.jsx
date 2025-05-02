@@ -5,13 +5,12 @@ import Login from "../pages/authentication/login";
 import Register from "../pages/authentication/register";
 import { Adminicio } from "../pages/admin/admininicio";
 
-
 import { ProductorInicio } from "../pages/productor/productorInicio";
 import { ProductorProductoCrear } from "../pages/productor/productosCrear";
 import { ProductorProductos } from "../pages/productor/productos";
 import { ProductorPedidos } from "../pages/productor/pedidos";
 import { ProductorEventos } from "../pages/productor/eventos";
-import { ProductorFacturacion } from "../pages/productor/facturacion"
+import { ProductorFacturacion } from "../pages/productor/facturacion";
 import { ProductorInicioUI } from "./ui/productor/productorInicioUI";
 import GestionUsuarios from "../pages/admin/gestionusuarios";
 import GestionProductores from "../pages/admin/gestionproduc";
@@ -19,6 +18,7 @@ import GestionComerciante from "../pages/admin/gestioncomerciante";
 import GestionEvento from "../pages/admin/gestionevento";
 import EventoView from "../pages/admin/eventoview";
 import GestionPedido from "../pages/admin/gestionpedido";
+import { ProductorProductoEditar } from "../pages/productor/productosEditar";
 
 const My_Routes = () => {
   return (
@@ -30,30 +30,65 @@ const My_Routes = () => {
         <div className="border-top">
           <Routes>
             <Route exact path="/" element={<Inicio />} />
-            <Route exact path="/adminicio" element={<Adminicio />}/>
-            <Route exact path="/gestionusuarios" element={<GestionUsuarios/>}/>
-            <Route exact path="/gestionproductores" element={<GestionProductores/>}/>
-            <Route exact path="/gestioncomerciante" element={<GestionComerciante/>}/>
-            <Route exact path="/gestionevento" element={<GestionEvento/>}/>
-            <Route exact path="/eventoview" element={<EventoView/>}/>
+            <Route exact path="/adminicio" element={<Adminicio />} />
+            <Route
+              exact
+              path="/gestionusuarios"
+              element={<GestionUsuarios />}
+            />
+            <Route
+              exact
+              path="/gestionproductores"
+              element={<GestionProductores />}
+            />
+            <Route
+              exact
+              path="/gestioncomerciante"
+              element={<GestionComerciante />}
+            />
+            <Route exact path="/gestionevento" element={<GestionEvento />} />
+            <Route exact path="/eventoview" element={<EventoView />} />
             <Route path="/gestionpedido" element={<GestionPedido />} />
-            
+
             <Route exact path="/login" element={<Login />} />
             <Route exact path="/register" element={<Register />} />
-            <Route exact path="/paneladmin" element={<Adminicio />}/>
+            <Route exact path="/paneladmin" element={<Adminicio />} />
 
             <Route exact path="/productor" element={<ProductorInicio />} />
-            <Route exact path="/productor/productos" element={<ProductorProductos />} />
-            <Route exact path="/productor/productos/crear" element={<ProductorProductoCrear />} />
-            <Route exact path="/productor/pedidos" element={<ProductorPedidos />} />
-            <Route exact path="/productor/facturacion" element={<ProductorFacturacion />} />
-            <Route exact path="/productor/eventos" element={<ProductorEventos />} />
+            <Route
+              exact
+              path="/productor/productos"
+              element={<ProductorProductos />}
+            />
+            <Route
+              exact
+              path="/productor/productos/crear"
+              element={<ProductorProductoCrear />}
+            />
+            <Route
+              path="/productor/productos/editar/:id"
+              element={<ProductorProductoEditar />}
+            />
+            <Route
+              exact
+              path="/productor/pedidos"
+              element={<ProductorPedidos />}
+            />
+            <Route
+              exact
+              path="/productor/facturacion"
+              element={<ProductorFacturacion />}
+            />
+            <Route
+              exact
+              path="/productor/eventos"
+              element={<ProductorEventos />}
+            />
             {/* Esto es un comentario en JSX 
             <Route exact path="/" element={<ProductorInicioUI />} />
             <Route exact path="/" element={<Inicio />} />
             */}
           </Routes>
-
         </div>
       </BrowserRouter>
     </>

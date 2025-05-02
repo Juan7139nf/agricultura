@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { database } from "../../scripts/firebase/firebase";
 import { ref, onValue } from "firebase/database";
 import { ProductorNav } from "../../scripts/components/productorNav";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import {
   Card,
   Form,
@@ -12,74 +12,40 @@ import {
   Col,
   Dropdown,
   ButtonGroup,
+  Button,
 } from "react-bootstrap";
-
-const datos = [
-  {
-    url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
-    nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
-    estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
-  },
-  {
-    url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
-    nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
-    estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
-  },
-  {
-    url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
-    nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
-    estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
-  },
-  {
-    url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
-    nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
-    estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
-  },
-  {
-    url: "https://freshcart-next-js.vercel.app/images/products/product-img-1.jpg",
-    nombre: "Sev Bhujia de Haldiram",
-    categoria: "Panadería y galletas",
-    estado: "Activo",
-    precio: 56,
-    createdAdd: "24 de noviembre de 2022",
-  },
-];
+import { getAuth } from "firebase/auth";
+import EditSquareIcon from "@mui/icons-material/EditSquare";
+import DeleteIcon from "@mui/icons-material/Delete";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 export function ProductorProductos() {
-  const [usuarios, setUsuarios] = useState([]);
+  const [datos, setDatos] = useState([]);
 
   useEffect(() => {
-    // Ruta a los usuarios
-    const usuariosRef = ref(database, "usuarios/");
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-    // Escucha en tiempo real los cambios en los datos
-    const unsubscribe = onValue(usuariosRef, (snapshot) => {
+    if (!user) return;
+
+    const datosRef = ref(database, "productos/");
+
+    const unsubscribe = onValue(datosRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
-        // Convierte el objeto a un arreglo
-        const usuariosArray = Object.keys(data).map((key) => ({
-          id: key,
-          ...data[key],
-        }));
-        setUsuarios(usuariosArray);
+        const datosArray = Object.keys(data)
+          .map((key) => ({
+            id: key,
+            ...data[key],
+          }))
+          .filter((item) => item.userId === user.uid); // <-- filtra por usuario
+
+        setDatos(datosArray);
       } else {
         console.log("No hay datos disponibles");
       }
     });
 
-    // Limpiar el listener cuando el componente se desmonte
     return () => unsubscribe();
   }, []);
 
@@ -120,7 +86,7 @@ export function ProductorProductos() {
                           to={"/productor/productos/crear"}
                           className="btn btn-primary fw-bolder"
                         >
-                          Productos
+                          Agregar productos
                         </Link>
                       </div>
                     </div>
@@ -168,8 +134,8 @@ export function ProductorProductos() {
                               <th className="bg-secondary">Categoría</th>
                               <th className="bg-secondary">Estado</th>
                               <th className="bg-secondary">Precio</th>
-                              <th className="bg-secondary">Creado en</th>
-                              <th className="bg-secondary"></th>
+                              <th className="bg-secondary">Precio oferta</th>
+                              <th className="bg-secondary">Acciones</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -190,24 +156,22 @@ export function ProductorProductos() {
                                     {e.estado}
                                   </span>
                                 </td>
-                                <td>{e.precio}</td>
-                                <td>{e.createdAdd}</td>
+                                <td className="text-end">{e.precio} Bs</td>
+                                <td className="text-end">
+                                  {e.precioOferta} Bs
+                                </td>
                                 <td>
-                                  <Dropdown>
-                                    <Dropdown.Toggle
-                                      split
-                                      variant="light"
-                                      id="dropdown-split-basic"
-                                    />
-                                    <Dropdown.Menu>
-                                      <Dropdown.Item href="#">
-                                        Editar
-                                      </Dropdown.Item>
-                                      <Dropdown.Item href="#">
-                                        Eliminar
-                                      </Dropdown.Item>
-                                    </Dropdown.Menu>
-                                  </Dropdown>
+                                  <div className="btn-group">
+                                    <NavLink to={`/productor/productos/editar/${e.id}`} className="btn btn-success py-0 px-1">
+                                      <EditSquareIcon />
+                                    </NavLink>
+                                    <Button variant="danger py-0 px-1">
+                                      <DeleteIcon />
+                                    </Button>
+                                    <Button variant="warning py-0 px-1">
+                                      <RestartAltIcon />
+                                    </Button>
+                                  </div>
                                 </td>
                               </tr>
                             ))}

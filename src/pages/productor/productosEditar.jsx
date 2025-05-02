@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { ref, push } from "firebase/database";
+import React, { useEffect, useState } from "react";
+import { Link, NavLink, useNavigate, useParams } from "react-router-dom";
+import { get, ref, update } from "firebase/database";
 import ReactQuill, { displayName } from "react-quill";
 import { database } from "../../scripts/firebase/firebase";
 import { Module1 } from "../../scripts/customs/formQuill";
@@ -8,7 +8,7 @@ import { Button, Form } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 import { getAuth } from "firebase/auth";
 
-export function ProductorProductoCrear() {
+export function ProductorProductoEditar() {
   const [nombre, setNombre] = useState("");
   const [categoria, setCategoria] = useState("");
   const [peso, setPeso] = useState(0);
@@ -26,6 +26,39 @@ export function ProductorProductoCrear() {
   const navigate = useNavigate();
   const auth = getAuth();
   const user = auth.currentUser;
+  const { id } = useParams(); // ID del producto desde la URL
+
+  // Cargar los datos del producto
+  useEffect(() => {
+    const cargarProducto = async () => {
+      try {
+        const productoRef = ref(database, `productos/${id}`);
+        const snapshot = await get(productoRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          setNombre(data.nombre || "");
+          setCategoria(data.categoria || "");
+          setPeso(data.peso || 0);
+          setUnidad(data.unidad || "");
+          setUrl(data.url || "");
+          setDescripcion(data.descripcion || "");
+          setStock(data.stock ?? true);
+          setCodigo(data.codigo || "");
+          setSku(data.sku || "");
+          setEstado(data.estado || "Activo");
+          setPrecioOferta(data.precioOferta || 0);
+          setPrecio(data.precio || 0);
+        } else {
+          toast.error("Producto no encontrado.");
+          navigate("/productor/productos");
+        }
+      } catch (error) {
+        toast.error("Error al cargar el producto: " + error.message);
+      }
+    };
+
+    cargarProducto();
+  }, [id, navigate]);
 
   const handleImagenChange = (e) => {
     setFoto(e.target.files[0]);
@@ -34,57 +67,57 @@ export function ProductorProductoCrear() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!foto) {
-      alert("Por favor selecciona una imagen.");
-      return;
+    let nuevaUrl = url;
+
+    if (foto) {
+      const formData = new FormData();
+      formData.append("imagen", foto);
+
+      try {
+        const response = await fetch("http://localhost/api/upload.php", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+
+        if (data.ruta) {
+          nuevaUrl = `http://localhost/api/${data.ruta}`;
+        } else {
+          toast.error("Error al subir imagen.");
+          return;
+        }
+      } catch (error) {
+        toast.error("Error al subir la imagen: " + error.message);
+        return;
+      }
     }
 
-    const formData = new FormData();
-    formData.append("imagen", foto);
-
     try {
-      const response = await fetch("http://localhost/api/upload.php", {
-        method: "POST",
-        body: formData,
+      const productoRef = ref(database, `productos/${id}`);
+      await update(productoRef, {
+        userId: user?.uid || "",
+        nombre,
+        categoria,
+        peso,
+        unidad,
+        url: nuevaUrl,
+        descripcion,
+        stock,
+        codigo,
+        sku,
+        estado,
+        precio,
+        precioOferta,
+        updatedAt: new Date().toISOString(),
       });
 
-      const data = await response.json();
+      toast.success("Producto actualizado exitosamente");
 
-      if (data.ruta) {
-        const imagenUrl = `http://localhost/api/${data.ruta}`;
-
-        const dataRef = ref(database, "productos");
-        await push(dataRef, {
-          userId: user.uid,
-          nombre,
-          categoria,
-          peso,
-          unidad,
-          url: imagenUrl,
-          descripcion,
-          stock,
-          codigo,
-          sku,
-          estado,
-          precio,
-          precioOferta,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          deletedAt: null,
-        });
-
-        toast.success("Datos enviados exitosamante");
-
-        setTimeout(() => {
-          navigate("/productor/productos");
-        }, 1000);
-      } else if (data.error) {
-        toast.error("Error: " + data.error);
-      } else {
-        toast.error("Respuesta inesperada del servidor.");
-      }
+      setTimeout(() => {
+        navigate("/productor/productos");
+      }, 1000);
     } catch (error) {
-      toast.error("Error al subir la imagen: " + error.message);
+      toast.error("Error al actualizar el producto: " + error.message);
     }
   };
 
@@ -95,7 +128,7 @@ export function ProductorProductoCrear() {
           <div className="col-md-12">
             <div className="d-md-flex justify-content-between align-items-center">
               <div>
-                <h2>Agregar nuevo producto</h2>
+                <h2>Editar producto</h2>
                 <nav aria-label="migaja de pan" className="mb-0">
                   <ol className="breadcrumb">
                     <li className="breadcrumb-item">
@@ -115,7 +148,7 @@ export function ProductorProductoCrear() {
                       </Link>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
-                      Agregar producto
+                      Editar producto
                     </li>
                   </ol>
                 </nav>
@@ -200,7 +233,6 @@ export function ProductorProductoCrear() {
                     type="file"
                     onChange={handleImagenChange}
                     accept="image/png, image/jpeg, image/jpg, image/gif"
-                    required
                   />
                 </Form.Group>
                 <Form.Group controlId="formFile" className="mb-3">
@@ -313,9 +345,11 @@ export function ProductorProductoCrear() {
             </div>
             <div className="d-grid">
               <Button type="submit" className="fw-bolder">
-                Agregar producto
+                Editar producto
               </Button>
             </div>
+            
+            <img src={url} alt="" srcset="" className="w-100 mt-4" />
           </div>
         </Form>
       </div>
