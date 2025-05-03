@@ -61,7 +61,7 @@ export default function ProductDestacado() {
 
     return () => unsubscribe();
   }, []);
-  
+
   const [zoomIndex, setZoomIndex] = useState(null);
 
   const handleAdd = (productName) => {
@@ -79,46 +79,57 @@ export default function ProductDestacado() {
           <div key={idx} className="product-card" role="listitem">
             <NavLink
               to={`/detalle/${product.id}`}
-              className="link-underline link-underline-opacity-0 text-body-emphasis"
+              className="link-underline link-underline-opacity-0 text-body-emphasis h-100"
             >
-              <div className="product-img-link">
-                <img
-                  src={product.url}
-                  alt={product.nombre}
-                  className={`product-img${zoomIndex === idx ? " zoomed" : ""}`}
-                  loading="lazy"
-                />
-              </div>
-              <div className="product-category">
-                <span className="category-link">{product.categoria}</span>
-              </div>
-              <h2 className="product-title">
-                <span className="title-link">{product.nombre}</span>
-              </h2>
-              {/*<StarRating rating={product.rating} reviews={product.reviews} />*/}
-              <div className="product-footer">
-                <div>
-                  {product?.precioOferta === 0 ? (
-                    <>
-                      <div className="fw-bold">{product?.precio}</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="">
-                        <div className="text-decoration-line-through text-muted">
-                          {product?.precio} Bs
-                        </div>
-                        <div className="fw-bold">
-                          {product?.precioOferta} Bs
-                        </div>
-                      </div>
-                    </>
-                  )}
+              <div className="d-flex flex-column h-100">
+                <div className="product-img-link">
+                  <img
+                    src={product.url}
+                    alt={product.nombre}
+                    className={`product-img${
+                      zoomIndex === idx ? " zoomed" : ""
+                    }`}
+                    loading="lazy"
+                  />
                 </div>
-                <button className="btn btn-primary fw-bolder">
-                  <AddIcon />
-                  Agregar
-                </button>
+                <div className="px-3 pt-1">
+                  <span className="category-link text-muted small">
+                    {product.categoria}
+                  </span>
+                </div>
+                <h2 className="px-3">
+                  <p className="title-link fs-4 fw-bolder lh-1 mb-0">
+                    {product.nombre}
+                  </p>
+                </h2>
+                {/*<StarRating rating={product.rating} reviews={product.reviews} />*/}
+                <div className="d-flex justify-content-between align-content-center px-3 pb-3 mt-auto">
+                  <div>
+                    {product?.precioOferta === 0 ||
+                    product?.precioOferta == null ? (
+                      <>
+                        <div className="fw-bold fs-4">{product?.precio} Bs</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="lh-1">
+                          <div className="text-decoration-line-through text-muted small">
+                            {product?.precio} Bs
+                          </div>
+                          <div className="fw-bold fs-4">
+                            {product?.precioOferta} Bs
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className="m-auto me-0">
+                    <button className="btn btn-primary fw-bolder ps-1">
+                      <AddIcon />
+                      Agregar
+                    </button>
+                  </div>
+                </div>
               </div>
             </NavLink>
           </div>

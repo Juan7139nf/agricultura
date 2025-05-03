@@ -72,7 +72,7 @@ const Navegador = ({ expand, show, handleClose }) => {
                 <NavLink className="nav-link" to={"/productos"}>
                   Productos
                 </NavLink>
-                <NavDropdown
+                {/*<NavDropdown
                   title="Filtrar"
                   id={`offcanvasNavbarDropdown-expand-${expand}`}
                 >
@@ -86,33 +86,33 @@ const Navegador = ({ expand, show, handleClose }) => {
                   <NavDropdown.Item href="#action5">
                     Categorias
                   </NavDropdown.Item>
-                </NavDropdown>
-                {ini &&
-                  ini.roles &&
-                  ini.roles.some((role) => role !== "cliente") && (
+  </NavDropdown>*/}
+                {iniC &&
+                  iniC.roles &&
+                  iniC.roles.some((role) => role !== "cliente") && (
                     <NavDropdown
                       title="Panel administrativo"
                       id={`offcanvasNavbarDropdown-expand-${expand}`}
                     >
-                      {ini.roles.some((role) => role == "productor") && (
+                      {iniC.roles.some((role) => role == "productor") && (
                         <NavLink className="dropdown-item" to={"/productor"}>
                           Productor
                         </NavLink>
                       )}
-                      {ini.roles.some((role) => role == "comerciante") && (
+                      {iniC.roles.some((role) => role == "comerciante") && (
                         <NavLink className="dropdown-item" to={"/productor"}>
                           Comerciante
                         </NavLink>
                       )}
                       <NavDropdown.Divider />
-                      {ini.roles.some((role) => role == "administrador") && (
+                      {iniC.roles.some((role) => role == "administrador") && (
                         <NavLink className="dropdown-item" to={"/adminicio"}>
                           Administracion
                         </NavLink>
                       )}
                     </NavDropdown>
                   )}
-                <Nav.Link href="/paneladmin">Eventos</Nav.Link>
+                {/*<Nav.Link href="/paneladmin">Eventos</Nav.Link>*/}
               </Nav>
               <hr className="d-lg-none my-2 text-white-50"></hr>
               <Nav className="justify-content-end">

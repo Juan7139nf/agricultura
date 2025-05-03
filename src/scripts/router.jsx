@@ -49,7 +49,7 @@ const My_Routes = () => {
               element={<GestionProductores />}
             />
             <Route exact path="/gestionevento" element={<GestionEvento />} />
-            <Route exact path="/productos" element={<GestionProductos />} />
+            <Route exact path="/admin/productos" element={<GestionProductos />} />
             <Route path="/gestionpedido" element={<GestionPedido />} />
             <Route exact path="/login" element={<Login />} />
             <Route exact path="/paneladmin" element={<Adminicio />} />

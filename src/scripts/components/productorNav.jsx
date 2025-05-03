@@ -50,7 +50,7 @@ export function ProductorNav() {
         </div>
       </div>
 
-      <div className="border-end d-none d-md-block col-lg-3 col-md-4 col-12">
+      <div className="border-end d-none d-md-block col-lg-3 col-md-4 col-12 py-5">
         <div className="pt-12 pe-lg-10">
           <Nav className="flex-column nav-pills-dark nav-pills">
             <Nav.Item>

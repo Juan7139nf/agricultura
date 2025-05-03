@@ -74,14 +74,14 @@ export function ProductorProductoEditar() {
       formData.append("imagen", foto);
 
       try {
-        const response = await fetch("http://localhost/api/upload.php", {
+        const response = await fetch("/api/upload.php", {
           method: "POST",
           body: formData,
         });
         const data = await response.json();
 
         if (data.ruta) {
-          nuevaUrl = `http://localhost/api/${data.ruta}`;
+          nuevaUrl = `/api/${data.ruta}`;
         } else {
           toast.error("Error al subir imagen.");
           return;

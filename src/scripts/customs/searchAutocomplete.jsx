@@ -19,7 +19,8 @@ const Input = styled("input")(({ theme }) => ({
 }));
 
 const Listbox = styled("ul")(({ theme }) => ({
-  width: 200,
+  width: "57%",
+  maxWidth: "25rem",
   margin: 0,
   padding: 0,
   zIndex: 1,

@@ -72,8 +72,6 @@ const DetalleProductoDiseño = () => {
     // Crea un objeto con la estructura que deseas guardar, incluyendo el cliente id
     const productoConDetalles = {
       id: data.id,
-      nombre: data.nombre, // Puedes agregar el nombre o cualquier otro detalle
-      precio: data.precio, // Agregar precio del producto
       fecha: fecha,
       cantidad: cantidad,
       clienteId: user.uid, // Guarda el cliente id

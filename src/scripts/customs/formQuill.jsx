@@ -1,12 +1,11 @@
 const Module1 = {
   toolbar: [
     ["bold", "italic", "underline", "strike"], // toggled buttons
-    ["blockquote", "code-block"],
-    ["link", "video", "formula"],
+    ["blockquote"],
+    ["link", "video"],
 
     [{ header: 1 }, { header: 2 }], // custom button values
     [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
-    [{ script: "sub" }, { script: "super" }], // superscript/subscript
     [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
     [{ direction: "rtl" }], // text direction
 

@@ -28,7 +28,7 @@ export function AdminNav() {
     },
     {
       name: "Productos",
-      url: "/productos",
+      url: "/admin/productos",
       icon: <ShoppingCartIcon fontSize="small" />,
     },
     {
