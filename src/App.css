@@ -339,3 +339,16 @@
         /* Ajusta el tamaño de las imágenes */
     }
 }
+
+.accordion-header .accordion-button {
+    padding: 0;
+    line-height: normal;
+}
+
+.accordion-header .accordion-button .w-100:hover {
+    color: var(--bs-active-primary) !important;
+}
+
+.accordion-header .accordion-button::after {
+    width: 0;
+}

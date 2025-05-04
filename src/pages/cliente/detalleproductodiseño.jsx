@@ -132,7 +132,7 @@ const DetalleProductoDiseño = () => {
         </div>
         <div className="row">
           <div className="col-md-6">
-            <img src={data?.url} alt="" srcset="" className="w-100" />
+            <img src={data?.url} alt="" className="w-100" />
           </div>
           <div className="col-md-6">
             <h6 className="mb-4 d-block text-primary">{data?.categoria}</h6>

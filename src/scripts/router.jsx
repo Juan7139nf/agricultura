@@ -22,6 +22,7 @@ import { ProductorProductoEditar } from "../pages/productor/productosEditar";
 import DetalleProductoDiseño from "../pages/cliente/detalleproductodiseño";
 import { ProductosClient } from "../pages/cliente/productos";
 import { CarritoIndex } from "../pages/cliente/cart";
+import { PedidoDesing } from "../pages/cliente/pedido";
 
 const My_Routes = () => {
   return (
@@ -36,6 +37,9 @@ const My_Routes = () => {
             <Route exact path="/productos" element={<ProductosClient />} />
 
             <Route exact path="/cart" element={<CarritoIndex />} />
+
+            <Route exact path="/pedido" element={<PedidoDesing />} />
+
             <Route
               exact
               path="/detalle/:id"
@@ -49,7 +53,11 @@ const My_Routes = () => {
               element={<GestionProductores />}
             />
             <Route exact path="/gestionevento" element={<GestionEvento />} />
-            <Route exact path="/admin/productos" element={<GestionProductos />} />
+            <Route
+              exact
+              path="/admin/productos"
+              element={<GestionProductos />}
+            />
             <Route path="/gestionpedido" element={<GestionPedido />} />
             <Route exact path="/login" element={<Login />} />
             <Route exact path="/paneladmin" element={<Adminicio />} />
