@@ -38,7 +38,7 @@ const My_Routes = () => {
 
             <Route exact path="/cart" element={<CarritoIndex />} />
 
-            <Route exact path="/pedido" element={<PedidoDesing />} />
+            <Route exact path="/pedido/:id" element={<PedidoDesing />} />
 
             <Route
               exact

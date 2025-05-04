@@ -479,43 +479,44 @@ export function PedidoDesing() {
                           Transferencias seguras a través de su cuenta bancaria.
                           Aceptamos Mastercard, Visa, etc.
                         </small>
-
-                        <div className="mt-3 ms-4">
-                          <Form.Group className="mb-2">
-                            <Form.Label>Número de tarjeta</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="1234 5678 9012 3456"
-                            />
-                          </Form.Group>
-                          <Row>
-                            <Col>
-                              <Form.Group className="mb-2">
-                                <Form.Label>Nombre en la tarjeta</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  placeholder="Ingrese su nombre"
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col>
-                              <Form.Group className="mb-2">
-                                <Form.Label>Fecha de caducidad</Form.Label>
-                                <Form.Control type="month" min="2025-05" />
-                              </Form.Group>
-                            </Col>
-                            <Col>
-                              <Form.Group className="mb-2">
-                                <Form.Label>Código CVV</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  placeholder="xxx"
-                                  maxLength={4}
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-                        </div>
+                        {metodo === "tarjeta" && (
+                          <div className="mt-3 ms-4">
+                            <Form.Group className="mb-2">
+                              <Form.Label>Número de tarjeta</Form.Label>
+                              <Form.Control
+                                type="text"
+                                placeholder="1234 5678 9012 3456"
+                              />
+                            </Form.Group>
+                            <Row>
+                              <Col>
+                                <Form.Group className="mb-2">
+                                  <Form.Label>Nombre en la tarjeta</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    placeholder="Ingrese su nombre"
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col>
+                                <Form.Group className="mb-2">
+                                  <Form.Label>Fecha de caducidad</Form.Label>
+                                  <Form.Control type="month" min="2025-05" />
+                                </Form.Group>
+                              </Col>
+                              <Col>
+                                <Form.Group className="mb-2">
+                                  <Form.Label>Código CVV</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    placeholder="xxx"
+                                    maxLength={4}
+                                  />
+                                </Form.Group>
+                              </Col>
+                            </Row>
+                          </div>
+                        )}
                       </Card.Body>
                     </Card>
 
@@ -524,17 +525,32 @@ export function PedidoDesing() {
                       <Card.Body>
                         <Form.Check
                           type="radio"
-                          id="payoneer"
+                          id="qr"
                           name="metodoPago"
-                          label="Pagar con Payoneer"
-                          value="payoneer"
-                          checked={metodo === "payoneer"}
+                          label="Pagar con Qr"
+                          value="qr"
+                          checked={metodo === "qr"}
                           onChange={handleSelect}
                         />
                         <small className="text-muted ms-4">
-                          Serás redirigido al sitio web de Payoneer para
-                          completar tu compra de forma segura.
+                          Pago por QR, debes enviar el comprobante del pago para
+                          que sea aceptado.
                         </small>
+                        {metodo === "qr" && (
+                          <>
+                            <div className="w-100 p-3">
+                              <img
+                                src="/img/qr.jpeg"
+                                alt=""
+                                className="rounded rounded-4 p-0 border border-black"
+                              />
+                            </div>
+                            <Form.Group className="mb-2">
+                              <Form.Label>Comprobante</Form.Label>
+                              <Form.Control type="file" accept="image" />
+                            </Form.Group>
+                          </>
+                        )}
                       </Card.Body>
                     </Card>
 
