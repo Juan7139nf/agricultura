@@ -1,133 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { NavLink } from "react-router-dom"
 import { MoreVertical, Search, Package, FileText, Truck } from "lucide-react"
-
-// Datos de ejemplo - pedidos
-const pedidos = [
-  {
-    id: "1",
-    numeroPedido: "PED-2023-001",
-    cliente: {
-      id: "2",
-      nombre: "Judy Nelson",
-      tipo: "comerciante",
-      avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-8.jpg",
-    },
-    fechaPedido: "27 Abril, 2023 a las 2:47pm",
-    total: "$490.00",
-    estado: "pendiente",
-    productos: [
-      { nombre: "Tomates orgánicos", cantidad: 20, precio: "$10.00" },
-      { nombre: "Lechugas hidropónicas", cantidad: 15, precio: "$12.00" },
-    ],
-  },
-  {
-    id: "2",
-    numeroPedido: "PED-2023-002",
-    cliente: {
-      id: "3",
-      nombre: "John Mattox",
-      tipo: "productor",
-      avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-5.jpg",
-    },
-    fechaPedido: "28 Abril, 2023 a las 10:15am",
-    total: "$235.50",
-    estado: "realizado",
-    productos: [
-      { nombre: "Fertilizante orgánico", cantidad: 5, precio: "$25.00" },
-      { nombre: "Semillas de tomate", cantidad: 10, precio: "$8.50" },
-    ],
-  },
-  {
-    id: "3",
-    numeroPedido: "PED-2023-003",
-    cliente: {
-      id: "5",
-      nombre: "Rhonda Pinson",
-      tipo: "comerciante",
-      avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-4.jpg",
-    },
-    fechaPedido: "30 Abril, 2023 a las 3:20pm",
-    total: "$750.00",
-    estado: "cancelado",
-    productos: [
-      { nombre: "Papas orgánicas", cantidad: 100, precio: "$5.00" },
-      { nombre: "Cebollas", cantidad: 50, precio: "$3.00" },
-    ],
-  },
-  {
-    id: "4",
-    numeroPedido: "PED-2023-004",
-    cliente: {
-      id: "6",
-      nombre: "Ricardo Méndez",
-      tipo: "productor",
-      avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-2.jpg",
-    },
-    fechaPedido: "2 Mayo, 2023 a las 9:10am",
-    total: "$320.75",
-    estado: "pendiente",
-    productos: [
-      { nombre: "Herramientas de jardín", cantidad: 3, precio: "$45.00" },
-      { nombre: "Sistema de riego", cantidad: 1, precio: "$185.75" },
-    ],
-  },
-  {
-    id: "5",
-    numeroPedido: "PED-2023-005",
-    cliente: {
-      id: "7",
-      nombre: "María González",
-      tipo: "comerciante",
-      avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-5.jpg",
-    },
-    fechaPedido: "5 Mayo, 2023 a las 11:45am",
-    total: "$1,250.00",
-    estado: "realizado",
-    productos: [
-      { nombre: "Fresas orgánicas", cantidad: 200, precio: "$3.50" },
-      { nombre: "Manzanas", cantidad: 150, precio: "$2.50" },
-    ],
-  },
-  {
-    id: "6",
-    numeroPedido: "PED-2023-006",
-    cliente: {
-      id: "9",
-      nombre: "Carlos Ramírez",
-      tipo: "productor",
-      avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-5.jpg",
-    },
-    fechaPedido: "7 Mayo, 2023 a las 4:30pm",
-    total: "$560.25",
-    estado: "pendiente",
-    productos: [
-      { nombre: "Abono orgánico", cantidad: 10, precio: "$18.50" },
-      { nombre: "Pesticida natural", cantidad: 5, precio: "$75.25" },
-    ],
-  },
-  {
-    id: "7",
-    numeroPedido: "PED-2023-007",
-    cliente: {
-      id: "1",
-      nombre: "Bonnie Howe",
-      tipo: "usuario",
-      avatar: "https://freshcart-next-js.vercel.app/images/avatar/avatar-5.jpg",
-    },
-    fechaPedido: "10 Mayo, 2023 a las 2:15pm",
-    total: "$125.50",
-    estado: "realizado",
-    productos: [
-      { nombre: "Verduras surtidas", cantidad: 1, precio: "$45.50" },
-      { nombre: "Frutas de temporada", cantidad: 1, precio: "$80.00" },
-    ],
-  },
-]
+import { ref, onValue, update, get } from "firebase/database"
+import { database } from "../../scripts/firebase/firebase"
+import { AdminNav } from "../../scripts/components/adminNav"
 
 export default function GestionPedido() {
+  const [pedidos, setPedidos] = useState([])
+  const [cargando, setCargando] = useState(true)
   const [terminoBusqueda, setTerminoBusqueda] = useState("")
   const [paginaActual, setPaginaActual] = useState(1)
   const [filtroEstado, setFiltroEstado] = useState("todos")
@@ -137,13 +19,118 @@ export default function GestionPedido() {
 
   const elementosPorPagina = 10
 
+  // Cargar pedidos desde Firebase
+  useEffect(() => {
+    const pedidosRef = ref(database, "pedidos")
+
+    const unsubscribe = onValue(pedidosRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const pedidosData = snapshot.val()
+        const pedidosArray = Object.keys(pedidosData).map((id) => {
+          const pedido = pedidosData[id]
+
+          // Obtener información del cliente si está disponible
+          const obtenerInfoCliente = async (clienteId) => {
+            if (!clienteId) return null
+
+            try {
+              const clienteRef = ref(database, `usuarios/${clienteId}`)
+              const clienteSnapshot = await get(clienteRef)
+              if (clienteSnapshot.exists()) {
+                return clienteSnapshot.val()
+              }
+              return null
+            } catch (error) {
+              console.error("Error al obtener datos del cliente:", error)
+              return null
+            }
+          }
+
+          // Formatear el pedido según la estructura real
+          return {
+            id,
+            numeroPedido: id.substring(0, 8).toUpperCase(), // Usar parte del ID como número de pedido
+            clientUid: pedido.clientUid,
+            cliente: {
+              id: pedido.clientUid,
+              nombre: "Cliente", // Valor por defecto, se actualizará después
+              tipo: "usuario",
+              avatar: "/placeholder.svg",
+            },
+            fechaPedido: pedido.fecha ? new Date(pedido.fecha).toLocaleString() : "Fecha desconocida",
+            total: pedido.total ? `$${pedido.total.toFixed(2)}` : `$${pedido.subTotal?.toFixed(2) || "0.00"}`,
+            subTotal: pedido.subTotal,
+            estado: pedido.estado || "pendiente",
+            carrito: pedido.carrito || [],
+            productos: pedido.carrito
+              ? Object.values(pedido.carrito).map((item) => ({
+                  nombre: item.nombre || "Producto",
+                  cantidad: item.cantidad || 1,
+                  precio: item.precio ? `$${item.precio.toFixed(2)}` : "$0.00",
+                }))
+              : [],
+          }
+        })
+
+        // Obtener información de clientes
+        pedidosArray.forEach(async (pedido) => {
+          if (pedido.clientUid) {
+            const clienteRef = ref(database, `usuarios/${pedido.clientUid}`)
+            onValue(clienteRef, (clienteSnapshot) => {
+              if (clienteSnapshot.exists()) {
+                const clienteData = clienteSnapshot.val()
+                setPedidos((prevPedidos) =>
+                  prevPedidos.map((p) =>
+                    p.id === pedido.id
+                      ? {
+                          ...p,
+                          cliente: {
+                            id: pedido.clientUid,
+                            nombre: clienteData.displayName || clienteData.email || "Cliente",
+                            tipo: clienteData.roles?.includes("comerciante")
+                              ? "comerciante"
+                              : clienteData.roles?.includes("productor")
+                                ? "productor"
+                                : "usuario",
+                            avatar: clienteData.photoURL || "/placeholder.svg",
+                          },
+                        }
+                      : p,
+                  ),
+                )
+              }
+            })
+          }
+        })
+
+        // Ordenar por fecha (más recientes primero)
+        pedidosArray.sort((a, b) => {
+          if (!a.fecha) return 1
+          if (!b.fecha) return -1
+          return new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
+        })
+
+        setPedidos(pedidosArray)
+      } else {
+        setPedidos([])
+      }
+      setCargando(false)
+    })
+
+    return () => unsubscribe()
+  }, [])
+
   // Filtrar pedidos según el término de búsqueda y el filtro de estado
   const pedidosFiltrados = pedidos.filter((pedido) => {
     const coincideBusqueda =
-      pedido.numeroPedido.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
-      pedido.cliente.nombre.toLowerCase().includes(terminoBusqueda.toLowerCase())
+      pedido.numeroPedido?.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
+      pedido.cliente?.nombre?.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
+      pedido.clientUid?.toLowerCase().includes(terminoBusqueda.toLowerCase())
 
-    const coincideEstado = filtroEstado === "todos" || pedido.estado === filtroEstado
+    const coincideEstado =
+      filtroEstado === "todos" ||
+      pedido.estado === filtroEstado ||
+      (filtroEstado === "realizado" && pedido.estado === "completado")
 
     return coincideBusqueda && coincideEstado
   })
@@ -168,6 +155,46 @@ export default function GestionPedido() {
       setMenuAbierto(null)
     } else {
       setMenuAbierto(id)
+    }
+  }
+
+  // Función para marcar un pedido como realizado
+  const marcarComoRealizado = async (pedido) => {
+    try {
+      const pedidoRef = ref(database, `pedidos/${pedido.id}`)
+      await update(pedidoRef, {
+        estado: "completado",
+      })
+
+      // Cerrar el diálogo
+      setDialogoDetalleAbierto(false)
+      setMenuAbierto(null)
+
+      // Opcional: mostrar mensaje de éxito
+      alert("Pedido marcado como completado correctamente")
+    } catch (error) {
+      console.error("Error al actualizar el estado del pedido:", error)
+      alert("Error al actualizar el estado del pedido")
+    }
+  }
+
+  // Función para cancelar un pedido
+  const cancelarPedido = async (pedido) => {
+    try {
+      const pedidoRef = ref(database, `pedidos/${pedido.id}`)
+      await update(pedidoRef, {
+        estado: "cancelado",
+      })
+
+      // Cerrar el diálogo
+      setDialogoDetalleAbierto(false)
+      setMenuAbierto(null)
+
+      // Opcional: mostrar mensaje de éxito
+      alert("Pedido cancelado correctamente")
+    } catch (error) {
+      console.error("Error al cancelar el pedido:", error)
+      alert("Error al cancelar el pedido")
     }
   }
 
@@ -319,464 +346,169 @@ export default function GestionPedido() {
   }
 
   return (
-    <div style={{ padding: "1.5rem" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ fontSize: "1.875rem", fontWeight: "bold" }}>Gestión de Pedidos</h1>
-
-          {/* Breadcrumbs con NavLink */}
-          <div style={{ display: "flex", gap: "0.5rem", fontSize: "0.875rem", color: "#6b7280" }}>
-            <NavLink to="/admin" style={({ isActive }) => (isActive ? { color: "#3b82f6", fontWeight: "600" } : {})}>
+    <div className="container-md">
+      <div className="row">
+        {/* Panel lateral */}
+        <div className="col-lg-3 col-md-4 col-12">
+          <AdminNav />
+        </div>
+  
+        {/* Contenido principal */}
+        <div className="col-lg-9 col-md-8 col-12 py-4 p-md-5 p-lg-6">
+          <h1 className="mb-4">Gestión de Pedidos</h1>
+  
+          {/* Breadcrumbs */}
+          <div className="d-flex gap-2 mb-4 text-muted small">
+            <NavLink
+              to="/admin"
+              className={({ isActive }) => isActive ? "text-primary fw-semibold" : ""}
+            >
               Panel
             </NavLink>
-            <span> / </span>
+            <span>/</span>
             <NavLink
               to="/admin/pedidos"
-              style={({ isActive }) => (isActive ? { color: "#3b82f6", fontWeight: "600" } : {})}
+              className={({ isActive }) => isActive ? "text-primary fw-semibold" : ""}
             >
               Pedidos
             </NavLink>
           </div>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ position: "relative", width: "100%", maxWidth: "33.333333%" }}>
+  
+          {/* Filtros y buscador */}
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <div className="position-relative w-100" style={{ maxWidth: "33.333333%" }}>
               <Search
-                style={{
-                  position: "absolute",
-                  left: "0.75rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#9ca3af",
-                }}
+                className="position-absolute"
+                style={{ left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }}
                 size={18}
               />
               <input
                 type="text"
                 placeholder="Buscar pedidos..."
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  paddingLeft: "2.5rem",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "0.375rem",
-                }}
+                className="form-control ps-5"
                 value={terminoBusqueda}
                 onChange={(e) => setTerminoBusqueda(e.target.value)}
               />
             </div>
-
-            <div>
-              <button
-                style={{
-                  ...styles.filterButton,
-                  ...(filtroEstado === "todos" ? styles.filterButtonActive : {}),
-                }}
-                onClick={() => setFiltroEstado("todos")}
-              >
-                Todos
-              </button>
-              <button
-                style={{
-                  ...styles.filterButton,
-                  ...(filtroEstado === "pendiente" ? styles.filterButtonActive : {}),
-                }}
-                onClick={() => setFiltroEstado("pendiente")}
-              >
-                Pendientes
-              </button>
-              <button
-                style={{
-                  ...styles.filterButton,
-                  ...(filtroEstado === "realizado" ? styles.filterButtonActive : {}),
-                }}
-                onClick={() => setFiltroEstado("realizado")}
-              >
-                Realizados
-              </button>
-              <button
-                style={{
-                  ...styles.filterButton,
-                  ...(filtroEstado === "cancelado" ? styles.filterButtonActive : {}),
-                }}
-                onClick={() => setFiltroEstado("cancelado")}
-              >
-                Cancelados
-              </button>
-            </div>
-          </div>
-
-          {/* Tabla de pedidos */}
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
-                    <input type="checkbox" />
-                  </th>
-                  <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
-                    Nº Pedido
-                  </th>
-                  <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Cliente</th>
-                  <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Tipo</th>
-                  <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
-                    Fecha Pedido
-                  </th>
-                  <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Total</th>
-                  <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>Estado</th>
-                  <th style={{ padding: "0.75rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {pedidosPaginados.map((pedido) => (
-                  <tr key={pedido.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                    <td style={{ padding: "0.75rem" }}>
-                      <input type="checkbox" />
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>{pedido.numeroPedido}</td>
-                    <td style={{ padding: "0.75rem" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        <div
-                          style={{
-                            width: "2.5rem",
-                            height: "2.5rem",
-                            borderRadius: "9999px",
-                            overflow: "hidden",
-                            position: "relative",
-                          }}
-                        >
-                          <img
-                            src={pedido.cliente.avatar || "/placeholder.svg"}
-                            alt={pedido.cliente.nombre}
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                          />
-                        </div>
-                        <span style={{ fontWeight: "500" }}>{pedido.cliente.nombre}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>
-                      <span
-                        style={{
-                          ...styles.badge,
-                          ...(pedido.cliente.tipo === "productor"
-                            ? styles.badgeProductor
-                            : pedido.cliente.tipo === "comerciante"
-                              ? styles.badgeComerciante
-                              : styles.badgeUsuario),
-                        }}
-                      >
-                        {pedido.cliente.tipo === "productor"
-                          ? "Productor"
-                          : pedido.cliente.tipo === "comerciante"
-                            ? "Comerciante"
-                            : "Usuario"}
-                      </span>
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>{pedido.fechaPedido}</td>
-                    <td style={{ padding: "0.75rem" }}>{pedido.total}</td>
-                    <td style={{ padding: "0.75rem" }}>
-                      <span
-                        style={{
-                          ...styles.badge,
-                          ...(pedido.estado === "pendiente"
-                            ? styles.badgePendiente
-                            : pedido.estado === "realizado"
-                              ? styles.badgeRealizado
-                              : styles.badgeCancelado),
-                        }}
-                      >
-                        {pedido.estado === "pendiente"
-                          ? "Pendiente"
-                          : pedido.estado === "realizado"
-                            ? "Realizado"
-                            : "Cancelado"}
-                      </span>
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>
-                      <div style={styles.dropdown}>
-                        <button
-                          onClick={() => toggleMenu(pedido.id)}
-                          style={{ ...styles.btn, ...styles.btnGhost }}
-                          aria-label="Opciones"
-                        >
-                          <MoreVertical size={16} />
-                        </button>
-                        <div
-                          style={
-                            menuAbierto === pedido.id
-                              ? styles.dropdownContent
-                              : { ...styles.dropdownContent, ...styles.dropdownHidden }
-                          }
-                        >
-                          <button
-                            style={styles.menuItem}
-                            onClick={() => abrirDialogoDetalle(pedido)}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = styles.menuItemHover.backgroundColor
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = "transparent"
-                            }}
-                          >
-                            <FileText size={16} style={styles.menuIcon} />
-                            Ver detalles
-                          </button>
-                          {pedido.estado === "pendiente" && (
-                            <>
-                              <button
-                                style={styles.menuItem}
-                                onMouseEnter={(e) => {
-                                  e.target.style.backgroundColor = styles.menuItemHover.backgroundColor
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.target.style.backgroundColor = "transparent"
-                                }}
-                              >
-                                <Truck size={16} style={styles.menuIcon} />
-                                Marcar como realizado
-                              </button>
-                              <div style={styles.divider}></div>
-                              <button
-                                style={{ ...styles.menuItem, color: "#dc2626" }}
-                                onMouseEnter={(e) => {
-                                  e.target.style.backgroundColor = styles.menuItemHover.backgroundColor
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.target.style.backgroundColor = "transparent"
-                                }}
-                              >
-                                Cancelar pedido
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Paginación */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "1rem" }}>
-            <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-              Mostrando {(paginaActual - 1) * elementosPorPagina + 1} a{" "}
-              {Math.min(paginaActual * elementosPorPagina, pedidosFiltrados.length)} de {pedidosFiltrados.length}{" "}
-              entradas
-            </p>
-
-            <div style={{ display: "flex", gap: "0.25rem" }}>
-              <button
-                style={{
-                  ...styles.btn,
-                  ...styles.btnOutline,
-                  padding: "0.25rem 0.5rem",
-                  fontSize: "0.875rem",
-                }}
-                onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
-                disabled={paginaActual === 1}
-              >
-                Anterior
-              </button>
-
-              {Array.from({ length: Math.min(totalPaginas, 5) }, (_, i) => (
+  
+            <div className="d-flex flex-wrap gap-2">
+              {["todos", "pendiente", "realizado", "cancelado"].map((estado) => (
                 <button
-                  key={i}
-                  style={{
-                    ...styles.btn,
-                    ...(paginaActual === i + 1 ? styles.btnPrimary : styles.btnOutline),
-                    padding: "0.25rem 0.5rem",
-                    fontSize: "0.875rem",
-                  }}
-                  onClick={() => setPaginaActual(i + 1)}
+                  key={estado}
+                  className={`btn ${filtroEstado === estado ? "btn-primary" : "btn-outline-secondary"}`}
+                  onClick={() => setFiltroEstado(estado)}
                 >
-                  {i + 1}
+                  {estado.charAt(0).toUpperCase() + estado.slice(1)}
                 </button>
               ))}
-
-              <button
-                style={{
-                  ...styles.btn,
-                  ...styles.btnOutline,
-                  padding: "0.25rem 0.5rem",
-                  fontSize: "0.875rem",
-                }}
-                onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
-                disabled={paginaActual === totalPaginas}
-              >
-                Siguiente
-              </button>
             </div>
           </div>
+  
+          {/* Contenido: Cargando / Vacío / Tabla */}
+          {cargando ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status"></div>
+              <p className="mt-3">Cargando pedidos...</p>
+            </div>
+          ) : pedidos.length === 0 ? (
+            <div className="text-center py-5 bg-light rounded-4">
+              <Package size={48} className="text-muted mb-3" />
+              <h3 className="h5 fw-semibold mb-2">No hay pedidos</h3>
+              <p className="text-muted">No se encontraron pedidos en la base de datos.</p>
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" /></th>
+                    <th>Nº Pedido</th>
+                    <th>Cliente</th>
+                    <th>Tipo</th>
+                    <th>Fecha Pedido</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pedidosPaginados.map((pedido) => (
+                    <tr key={pedido.id}>
+                      <td><input type="checkbox" /></td>
+                      <td>{pedido.numeroPedido}</td>
+                      <td>
+                        <div className="d-flex align-items-center gap-2">
+                          <div className="rounded-circle overflow-hidden" style={{ width: "2.5rem", height: "2.5rem" }}>
+                            <img src={pedido.cliente?.avatar || "/placeholder.svg"} alt={pedido.cliente?.nombre} className="img-fluid" />
+                          </div>
+                          <span className="fw-medium">{pedido.cliente?.nombre}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`badge ${
+                          pedido.cliente?.tipo === "productor"
+                            ? "bg-success-subtle text-success"
+                            : pedido.cliente?.tipo === "comerciante"
+                            ? "bg-warning-subtle text-warning"
+                            : "bg-secondary-subtle text-secondary"
+                        }`}>
+                          {pedido.cliente?.tipo === "productor"
+                            ? "Productor"
+                            : pedido.cliente?.tipo === "comerciante"
+                            ? "Comerciante"
+                            : "Usuario"}
+                        </span>
+                      </td>
+                      <td>{pedido.fechaPedido}</td>
+                      <td>{pedido.total}</td>
+                      <td>
+                        <span className={`badge ${
+                          pedido.estado === "pendiente"
+                            ? "bg-info-subtle text-info"
+                            : pedido.estado === "realizado" || pedido.estado === "completado"
+                            ? "bg-success-subtle text-success"
+                            : "bg-danger-subtle text-danger"
+                        }`}>
+                          {pedido.estado === "pendiente"
+                            ? "Pendiente"
+                            : pedido.estado === "realizado" || pedido.estado === "completado"
+                            ? "Completado"
+                            : "Cancelado"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="dropdown">
+                          <button
+                            className="btn btn-sm btn-light border dropdown-toggle"
+                            type="button"
+                            onClick={() => toggleMenu(pedido.id)}
+                          >
+                            <MoreVertical size={16} />
+                          </button>
+                          {menuAbierto === pedido.id && (
+                            <div className="dropdown-menu show position-absolute">
+                              <button className="dropdown-item" onClick={() => abrirDialogoDetalle(pedido)}>
+                                <FileText size={16} className="me-2" />
+                                Ver detalles
+                              </button>
+                              {pedido.estado === "pendiente" && (
+                                <button className="dropdown-item" onClick={() => marcarComoRealizado(pedido)}>
+                                  <Truck size={16} className="me-2" />
+                                  Marcar como completado
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Diálogo de detalles del pedido */}
-      {dialogoDetalleAbierto && (
-        <div style={styles.modal}>
-          <div style={styles.modalBox}>
-            <div style={styles.modalHeader}>
-              <h3 style={styles.modalTitle}>
-                <Package size={20} style={{ display: "inline", marginRight: "0.5rem" }} />
-                Detalles del Pedido
-              </h3>
-              <button
-                onClick={() => setDialogoDetalleAbierto(false)}
-                style={{ background: "none", border: "none", cursor: "pointer", fontSize: "1.5rem" }}
-              >
-                &times;
-              </button>
-            </div>
-
-            {pedidoSeleccionado && (
-              <div>
-                <div style={{ marginBottom: "1rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                    <span style={{ fontWeight: "500" }}>Número de Pedido:</span>
-                    <span>{pedidoSeleccionado.numeroPedido}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                    <span style={{ fontWeight: "500" }}>Cliente:</span>
-                    <span>{pedidoSeleccionado.cliente.nombre}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                    <span style={{ fontWeight: "500" }}>Tipo de Cliente:</span>
-                    <span
-                      style={{
-                        ...styles.badge,
-                        ...(pedidoSeleccionado.cliente.tipo === "productor"
-                          ? styles.badgeProductor
-                          : pedidoSeleccionado.cliente.tipo === "comerciante"
-                            ? styles.badgeComerciante
-                            : styles.badgeUsuario),
-                      }}
-                    >
-                      {pedidoSeleccionado.cliente.tipo === "productor"
-                        ? "Productor"
-                        : pedidoSeleccionado.cliente.tipo === "comerciante"
-                          ? "Comerciante"
-                          : "Usuario"}
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                    <span style={{ fontWeight: "500" }}>Fecha del Pedido:</span>
-                    <span>{pedidoSeleccionado.fechaPedido}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                    <span style={{ fontWeight: "500" }}>Estado:</span>
-                    <span
-                      style={{
-                        ...styles.badge,
-                        ...(pedidoSeleccionado.estado === "pendiente"
-                          ? styles.badgePendiente
-                          : pedidoSeleccionado.estado === "realizado"
-                            ? styles.badgeRealizado
-                            : styles.badgeCancelado),
-                      }}
-                    >
-                      {pedidoSeleccionado.estado === "pendiente"
-                        ? "Pendiente"
-                        : pedidoSeleccionado.estado === "realizado"
-                          ? "Realizado"
-                          : "Cancelado"}
-                    </span>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: "1rem" }}>
-                  <h4 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "0.5rem" }}>Productos</h4>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                      <tr>
-                        <th style={{ padding: "0.5rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
-                          Producto
-                        </th>
-                        <th style={{ padding: "0.5rem", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>
-                          Cantidad
-                        </th>
-                        <th style={{ padding: "0.5rem", textAlign: "right", borderBottom: "1px solid #e2e8f0" }}>
-                          Precio
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pedidoSeleccionado.productos.map((producto, index) => (
-                        <tr key={index}>
-                          <td style={{ padding: "0.5rem", textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
-                            {producto.nombre}
-                          </td>
-                          <td style={{ padding: "0.5rem", textAlign: "center", borderBottom: "1px solid #e2e8f0" }}>
-                            {producto.cantidad}
-                          </td>
-                          <td style={{ padding: "0.5rem", textAlign: "right", borderBottom: "1px solid #e2e8f0" }}>
-                            {producto.precio}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <td
-                          colSpan="2"
-                          style={{
-                            padding: "0.5rem",
-                            textAlign: "right",
-                            fontWeight: "600",
-                            borderTop: "2px solid #e2e8f0",
-                          }}
-                        >
-                          Total:
-                        </td>
-                        <td
-                          style={{
-                            padding: "0.5rem",
-                            textAlign: "right",
-                            fontWeight: "600",
-                            borderTop: "2px solid #e2e8f0",
-                          }}
-                        >
-                          {pedidoSeleccionado.total}
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            <div style={styles.modalFooter}>
-              <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setDialogoDetalleAbierto(false)}>
-                Cerrar
-              </button>
-              {pedidoSeleccionado && pedidoSeleccionado.estado === "pendiente" && (
-                <>
-                  <button
-                    style={{ ...styles.btn, ...styles.btnPrimary }}
-                    onClick={() => {
-                      // Aquí iría la lógica para marcar como realizado
-                      setDialogoDetalleAbierto(false)
-                    }}
-                  >
-                    <Truck size={16} style={{ marginRight: "0.5rem" }} />
-                    Marcar como realizado
-                  </button>
-                  <button
-                    style={{ ...styles.btn, backgroundColor: "#ef4444", color: "white" }}
-                    onClick={() => {
-                      // Aquí iría la lógica para cancelar el pedido
-                      setDialogoDetalleAbierto(false)
-                    }}
-                  >
-                    Cancelar pedido
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  )
-}
+  );
+}  

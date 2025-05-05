@@ -6,7 +6,7 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 //import { getDatabase } from "firebase/database";
 //import { getFirestore } from "firebase/firestore"; // <-- usa Firestore
 
-import { getDatabase, ref, onValue, push, set } from "firebase/database";  
+import { getDatabase, ref, onValue, push, set, update, get} from "firebase/database";  
 
 // Configuración de Firebase (obtén estos valores desde la consola de Firebase)
 const firebaseConfig = {
@@ -31,6 +31,6 @@ const provider = new GoogleAuthProvider();
 //const database = getDatabase(app);
 //const database = getFirestore(app); // <-- cambia esto
 export { auth, provider };
-export { database, ref, onValue, push, set };
+export { database, ref, onValue, push, set, update, get};
 
 
