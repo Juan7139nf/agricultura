@@ -352,3 +352,119 @@
 .accordion-header .accordion-button::after {
     width: 0;
 }
+
+.slick-dots li button:before {
+    font-family: 'slick';
+    font-size: 20px;
+    line-height: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    content: '•';
+    text-align: center;
+    opacity: .5;
+    color: var(--bs-color-nav);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.slick-dots li.slick-active button:before {
+    opacity: 1;
+    color: var(--bs-color-nav);
+}
+
+.slick-list {
+    position: relative;
+}
+
+.slick-prev:before,
+.slick-next:before {
+    position: absolute;
+    top: -6.5rem !important;
+    font-family: 'slick';
+    font-size: 35px;
+    line-height: 1;
+    opacity: .75;
+    color: var(--bs-color-nav);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.slick-prev {
+    position: absolute;
+}
+
+.slick-prev:before {
+    left: 270px;
+}
+
+.slick-next:before {
+    right: 40px;
+}
+
+/* Small: ≥576px */
+@media (min-width: 576px) {
+
+    .slick-prev:before,
+    .slick-next:before {
+        top: -6.5rem !important;
+    }
+
+    .slick-prev:before {
+        left: 450px;
+    }
+}
+
+/* Medium: ≥768px */
+@media (min-width: 768px) {
+
+    .slick-prev:before,
+    .slick-next:before {
+        top: -7.2rem !important;
+    }
+
+    .slick-prev:before {
+        left: 620px;
+    }
+}
+
+/* Large: ≥992px */
+@media (min-width: 992px) {
+
+    .slick-prev:before,
+    .slick-next:before {
+        top: -7.5rem !important;
+    }
+
+    .slick-prev:before {
+        left: 850px;
+    }
+}
+
+/* X-Large: ≥1200px */
+@media (min-width: 1200px) {
+
+    .slick-prev:before,
+    .slick-next:before {
+        top: -7.5rem !important;
+    }
+
+    .slick-prev:before {
+        left: 1030px;
+    }
+}
+
+/* XX-Large: ≥1400px */
+@media (min-width: 1400px) {
+
+    .slick-prev:before,
+    .slick-next:before {
+        top: -7.5rem !important;
+    }
+
+    .slick-prev:before {
+        left: 1200px;
+    }
+}

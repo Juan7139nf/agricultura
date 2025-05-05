@@ -9,7 +9,6 @@ export function ProductorNav() {
     { name: "Panel", url: "/productor" },
     { name: "Productos", url: "/productor/productos" },
     { name: "Pedidos", url: "/productor/pedidos" },
-    { name: "Facturación", url: "/productor/facturacion" },
     { name: "Eventos", url: "/productor/eventos" },
   ];
 

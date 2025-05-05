@@ -25,6 +25,9 @@ import { CarritoIndex } from "../pages/cliente/cart";
 import { PedidoDesing } from "../pages/cliente/pedido";
 import Footer from "./components/footer";
 import AdminFacturacion from "../pages/admin/adminfacturacion";
+import VerEvento from "../pages/cliente/verevento";
+import VerEventoC from "../pages/cliente/vereventoC";
+import Perfil from "../pages/cliente/perfil";
 
 const My_Routes = () => {
   return (
@@ -36,6 +39,10 @@ const My_Routes = () => {
         <div className="border-top">
           <Routes>
             <Route exact path="/" element={<Inicio />} />
+
+            <Route exact path="/perfil" element={<Perfil />} />
+
+            <Route exact path="/eventos" element={<VerEventoC />} />
             <Route exact path="/productos" element={<ProductosClient />} />
 
             <Route exact path="/cart" element={<CarritoIndex />} />
@@ -63,7 +70,11 @@ const My_Routes = () => {
             <Route path="/gestionpedido" element={<GestionPedido />} />
             <Route exact path="/login" element={<Login />} />
             <Route exact path="/paneladmin" element={<Adminicio />} />
-            <Route exact path="/adminfacturacion" element={<AdminFacturacion />} />
+            <Route
+              exact
+              path="/adminfacturacion"
+              element={<AdminFacturacion />}
+            />
             <Route exact path="/productor" element={<ProductorInicio />} />
             <Route
               exact

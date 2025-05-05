@@ -6,32 +6,26 @@ const datos = [
   {
     name: "Vegetales",
     img: "/svg/vegetables.svg",
-    url: "/filtrar/category/vegetales",
   },
   {
     name: "Frutas",
     img: "/svg/fruit.svg",
-    url: "/filtrar/category/frutas",
   },
   {
     name: "Lácteos",
     img: "/svg/dairy.svg",
-    url: "/filtrar/category/lacteos",
   },
   {
     name: "Panadería",
     img: "/svg/bakery.svg",
-    url: "/filtrar/category/panaderia",
   },
   {
     name: "Aperitivos",
     img: "/svg/snacks.svg",
-    url: "/filtrar/category/aperitivos",
   },
   {
     name: "Materia prima",
     img: "/svg/coffee.svg",
-    url: "/filtrar/category/materiaprima",
   },
 ];
 
@@ -40,12 +34,37 @@ function Slider_Category() {
     dots: true,
     infinite: true,
     speed: 500,
+    autoplay: false, // Activar autoplay
+    autoplaySpeed: 2000, // Intervalo entre slides (en ms)
     slidesToShow: 6,
     slidesToScroll: 3,
+    responsive: [
+      {
+        breakpoint: 1200, // Menor a 1200px
+        settings: {
+          slidesToShow: 4,
+          slidesToScroll: 2,
+        },
+      },
+      {
+        breakpoint: 768, // Menor a 768px
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 480, // Menor a 480px (móviles)
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+    ],
   };
   return (
-    <div className="container-sm slider-button-top-end">
-      <div className="">
+    <div className="container-sm slider-button-top-end py-4">
+      <div className="py-3">
         <span className="fs-4 fw-bolder">Buscar por categoria</span>
       </div>
       <div className="slider-container">
@@ -56,14 +75,15 @@ function Slider_Category() {
                 <div className="mb-3 card-lift card">
                   <div className="text-center py-6 card-body">
                     <div className="my-4 text-body-emphasis">
-                      <img src={e.img} alt="" className="mx-auto text-body-secondary" />
+                      <img
+                        src={e.img}
+                        alt=""
+                        className="mx-auto text-body-secondary"
+                      />
                     </div>
-                    <NavLink
-                      className="text-decoration-none text-inherit text-body-emphasis"
-                      to={e.url}
-                    >
+                    <div className="text-decoration-none text-inherit text-body-emphasis">
                       {e.name}
-                    </NavLink>
+                    </div>
                   </div>
                 </div>
               </div>

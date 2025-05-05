@@ -249,6 +249,8 @@ export function PedidoDesing() {
       idPedido: id,
     };
 
+    facturacion.pedido.estado = "completado"
+
     const pedidoRef = ref(database, `pedidos/${id}`);
     const facturacionRef = ref(database, "facturacion");
 

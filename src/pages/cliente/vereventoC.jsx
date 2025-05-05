@@ -7,7 +7,7 @@ import PropuestaEventoModal from "../admin/propuestaeventomodal"
 import InscripcionModal from "../admin/inscripcionmodal"
 import { obtenerUsuarioDeLocalStorage } from "../../scripts/customs/localStorage"
 
-function VerEvento() {
+function VerEventoC() {
   const [eventos, setEventos] = useState([])
   const [loading, setLoading] = useState(true)
   const [usuario, setUsuario] = useState(null)
@@ -225,7 +225,7 @@ function VerEvento() {
   }
 
   return (
-    <div className="container pb-4">
+    <div className="container py-5">
       <header className="text-center mb-5">
         <h1 className="display-4 fw-bold mb-3">Eventos</h1>
         <p className="lead text-muted">
@@ -292,4 +292,4 @@ function VerEvento() {
   )
 }
 
-export default VerEvento
+export default VerEventoC

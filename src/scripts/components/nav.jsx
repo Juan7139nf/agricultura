@@ -644,8 +644,9 @@ const Navegador = ({ expand, show, handleClose }) => {
                       </Dropdown.Toggle>
 
                       <Dropdown.Menu>
-                        <Dropdown.Item disabled>Editar perfil</Dropdown.Item>
-                        <Dropdown.Item disabled>Configuraciones</Dropdown.Item>
+                        <NavLink to="/perfil" className="dropdown-item">
+                          Perfil
+                        </NavLink>
                         <Dropdown.Divider />
                         <Dropdown.Item onClick={handleLogout}>
                           Cerrar sesión

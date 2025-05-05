@@ -10,7 +10,6 @@ const Inicio = () => {
       <Inicio_Banner />
       <Slider_Category />
       <ProductDestacado />
-      <VerEvento/>
     </>
   );
 };

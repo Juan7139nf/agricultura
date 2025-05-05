@@ -54,22 +54,22 @@ const datos = [
 ];
 
 export function ProductorPedidos() {
-  const [usuarios, setUsuarios] = useState([]);
+  const [pedidos, setPedidos] = useState([]);
 
   useEffect(() => {
-    // Ruta a los usuarios
-    const usuariosRef = ref(database, "usuarios/");
+    // Ruta a los pedidos
+    const pedidosRef = ref(database, "pedidos/");
 
     // Escucha en tiempo real los cambios en los datos
-    const unsubscribe = onValue(usuariosRef, (snapshot) => {
+    const unsubscribe = onValue(pedidosRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
         // Convierte el objeto a un arreglo
-        const usuariosArray = Object.keys(data).map((key) => ({
+        const pedidosArray = Object.keys(data).map((key) => ({
           id: key,
           ...data[key],
         }));
-        setUsuarios(usuariosArray);
+        setPedidos(pedidosArray);
       } else {
         console.log("No hay datos disponibles");
       }
@@ -119,27 +119,6 @@ export function ProductorPedidos() {
               <Row>
                 <Col xl={12} className="mb-5">
                   <Card className="h-100">
-                    <Card.Body className="px-4 py-4">
-                      <Row className="justify-content-between">
-                        <Col lg={4} md={6} className="mb-2 mb-lg-0">
-                          <InputGroup>
-                            <Form.Control
-                              type="search"
-                              placeholder="Buscar pedidos"
-                            />
-                          </InputGroup>
-                        </Col>
-                        <Col lg={2} md={4}>
-                          <Form.Select>
-                            <option value="">Estado</option>
-                            <option value="active">Activo</option>
-                            <option value="draft">Borrador</option>
-                            <option value="deactive">Desactivar</option>
-                          </Form.Select>
-                        </Col>
-                      </Row>
-                    </Card.Body>
-
                     <Card.Body className="p-0">
                       <div className="table-responsive">
                         <Table
@@ -150,42 +129,61 @@ export function ProductorPedidos() {
                           <thead className="bg-light">
                             <tr>
                               <th className="bg-secondary">Imagen</th>
-                              <th className="bg-secondary">
-                                Producto
-                              </th>
+                              <th className="bg-secondary">Producto</th>
                               <th className="bg-secondary">Orden</th>
                               <th className="bg-secondary">Fecha</th>
-                              <th className="bg-secondary">Elementos</th>
                               <th className="bg-secondary">Estado</th>
                               <th className="bg-secondary">Cantidad</th>
-                              <th className="bg-secondary"></th>
+                              <th className="bg-secondary">Precio</th>
+                              <th className="bg-secondary">Total</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {datos.map((e, i) => (
-                              <tr key={i}>
-                                <td>
-                                  <img
-                                    src={e.url}
-                                    alt="Producto"
-                                    className="img-thumbnail"
-                                    style={{ width: "50px" }}
-                                  />
-                                </td>
-                                <td>{e.nombre}</td>
-                                <td>{e.orden}</td>
-                                <td>{e.fecha}</td>
-                                <td>{e.elementos}</td>
-                                <td>
-                                  <span className="badge bg-primary text-light">
-                                    {e.estado}
-                                  </span>
-                                </td>
-                                <td>
-                                  {e.total} bs
-                                </td>
-                              </tr>
-                            ))}
+                            {console.log(pedidos)}
+                            {pedidos.map((e) =>
+                              e.carrito.map((f, j) => (
+                                <tr key={j}>
+                                  <td>
+                                    <img
+                                      src={f.url}
+                                      alt="Producto"
+                                      className="img-thumbnail"
+                                      style={{ width: "50px" }}
+                                    />
+                                  </td>
+                                  <td>{f.nombre}</td>
+                                  <td>{e.id}</td>
+                                  <td>{e.fecha}</td>
+                                  <td>
+                                    <span
+                                      className={`badge bg-${
+                                        e.estado === "completado"
+                                          ? "primary"
+                                          : "warning"
+                                      } text-light`}
+                                    >
+                                      {e.estado}
+                                    </span>
+                                  </td>
+                                  <td>{f.cantidad}</td>
+                                  <td>
+                                    {f.precioOferta
+                                      ? parseFloat(f.precioOferta).toFixed(2)
+                                      : parseFloat(f.precio).toFixed(2)}{" "}
+                                    Bs
+                                  </td>
+                                  <td>
+                                    {parseFloat(
+                                      f.cantidad *
+                                        (f.precioOferta
+                                          ? f.precioOferta
+                                          : f.precio)
+                                    ).toFixed(2)}{" "}
+                                    Bs
+                                  </td>
+                                </tr>
+                              ))
+                            )}
                           </tbody>
                         </Table>
                       </div>
