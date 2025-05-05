@@ -11,12 +11,24 @@ import {
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { onValue, push, ref, remove, set } from "firebase/database";
+import {
+  get,
+  onValue,
+  push,
+  ref,
+  remove,
+  set,
+  update,
+} from "firebase/database";
 import { database } from "../../scripts/firebase/firebase";
+import { useParams } from "react-router-dom";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export function PedidoDesing() {
   const [activeKey, setActiveKey] = useState("0");
   const [metodo, setMetodo] = useState("");
+  const { id } = useParams();
+  const [pedido, setPedido] = useState({ subTotal: 0, total: 0 });
   const [direccionN, setDireccionN] = useState({
     nombre: "",
     apellido: "",
@@ -35,7 +47,7 @@ export function PedidoDesing() {
     telefono: "",
     predeterminado: false,
   });
-  const [direccion, setDireccion] = useState({});
+  const [direccion, setDireccion] = useState([]);
   const [direcciones, setDirecciones] = useState([]);
   const [show, setShow] = useState(false);
   const [showE, setShowE] = useState(false);
@@ -65,6 +77,20 @@ export function PedidoDesing() {
         }));
         setDirecciones(direcciones);
       });
+
+      const pedidoRef = ref(database, `pedidos/${id}`);
+
+      get(pedidoRef)
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            setPedido(snapshot.val());
+          } else {
+            console.log("No se encontró el pedido");
+          }
+        })
+        .catch((error) => {
+          console.error("Error al obtener el pedido:", error);
+        });
     });
 
     return () => unsubscribeAuth();
@@ -145,6 +171,257 @@ export function PedidoDesing() {
     // Solo permite abrir, pero no cerrar
     if (activeKey !== key) {
       setActiveKey(key);
+    }
+  };
+
+  const FinalizarPedido = async (e) => {
+    e.preventDefault();
+    if (!metodo || direccion.length === 0) return;
+
+    const facturacion = {
+      auth: {
+        uid: auth?.currentUser?.uid,
+        displayName: auth?.currentUser?.displayName,
+        email: auth?.currentUser?.email,
+      },
+      pedido,
+      metodo,
+      direccion,
+      fecha: new Date().toISOString(),
+    };
+
+    const pedidoRef = ref(database, `pedidos/${id}`);
+    const facturacionRef = ref(database, "facturacion");
+
+    const nuevaFacturacionRef = await push(facturacionRef, facturacion);
+    await update(pedidoRef, {
+      estado: "completado",
+    });
+    console.log(nuevaFacturacionRef.key);
+
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([595.28, 841.89]);
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const { width, height } = page.getSize();
+
+    const drawCenteredText = (text, yOffset, isBold = false) => {
+      const currentFont = isBold ? fontBold : font;
+      const textWidth = currentFont.widthOfTextAtSize(text, 12);
+      page.drawText(text, {
+        x: (page.getWidth() - textWidth) / 2,
+        y: yOffset,
+        size: 12,
+        font: currentFont,
+        color: rgb(0, 0, 0),
+      });
+      return yOffset - 15;
+    };
+
+    const drawLabelValue = (label, value, yOffset) => {
+      const labelWidth = fontBold.widthOfTextAtSize(label, 12);
+      const valueWidth = font.widthOfTextAtSize(value, 12);
+      const totalWidth = labelWidth + 5 + valueWidth;
+
+      const x = (page.getWidth() - totalWidth) / 2;
+
+      page.drawText(label, {
+        x,
+        y: yOffset,
+        size: 12,
+        font: fontBold,
+        color: rgb(0, 0, 0),
+      });
+
+      page.drawText(value, {
+        x: x + labelWidth + 5,
+        y: yOffset,
+        size: 12,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      return yOffset - 15;
+    };
+
+    let y = height - 30;
+
+    y = drawCenteredText("FACTURA", y, true);
+    y = drawCenteredText("CON DERECHO A CRÉDITO FISCAL", y, true);
+    y -= 15; // espacio adicional si deseas
+
+    y = drawCenteredText("LOS ULTIMOS", y, true);
+    y = drawCenteredText("UPDS - TARIJA", y, true);
+    y = drawCenteredText("AVENIDA LOS SAUCES", y);
+    y = drawCenteredText("ESQUINA FABIÁN RUIZ", y);
+    y = drawCenteredText("ZONA/BARRIO: ", y);
+    y = drawCenteredText("Tarija - Bolivia", y);
+    y = drawCenteredText(".........................", y);
+    y -= 10;
+    y = drawCenteredText("FACTURA N.", y, true);
+    y = drawCenteredText(nuevaFacturacionRef.key, y);
+    y = drawCenteredText(".........................", y);
+    y -= 10;
+    y = drawLabelValue(
+      "Cliente:",
+      facturacion.auth?.displayName || "No disponible",
+      y
+    );
+    y = drawLabelValue("Correo:", facturacion.auth?.email, y);
+    y = drawLabelValue("Nombre:", facturacion.direccion?.nombre, y);
+    y = drawLabelValue("Apellido:", facturacion.direccion?.apellido, y);
+    y = drawLabelValue("Ciudad:", facturacion.direccion?.ciudad, y);
+    y = drawLabelValue("Dirección:", facturacion.direccion?.direccion, y);
+    y = drawLabelValue("Método de pago:", facturacion.metodo, y);
+    y -= 10;
+    y = drawCenteredText("DETALLE", y);
+
+    const colWidths = [200, 60, 70, 80];
+    const totalTableWidth = colWidths.reduce((a, b) => a + b, 0);
+    const startX = (page.getWidth() - totalTableWidth) / 2;
+    const colX = [
+      startX,
+      startX + colWidths[0],
+      startX + colWidths[0] + colWidths[1],
+      startX + colWidths[0] + colWidths[1] + colWidths[2],
+    ];
+    const rowHeight = 20;
+
+    const drawCellBorder = (x, y, width, height) => {
+      page.drawRectangle({
+        x,
+        y: y - height,
+        width,
+        height,
+        borderColor: rgb(0, 0, 0),
+        borderWidth: 1,
+      });
+    };
+
+    // Dibujar encabezado
+    const colTitles = ["Descripción.", "Cant", "P. Unit", "Subtotal"];
+    colTitles.forEach((title, i) => {
+      drawCellBorder(colX[i], y, colWidths[i], rowHeight);
+      page.drawText(title, {
+        x: colX[i] + 5,
+        y: y - 14,
+        size: 12,
+        font: fontBold,
+      });
+    });
+    y -= rowHeight;
+
+    // Dibujar filas de datos con bordes
+    pedido.carrito.forEach((item) => {
+      const precioI = item.precioOferta ? item.precioOferta : item.precio;
+      const subtotal = precioI * item.cantidad;
+      const precioF = parseFloat(precioI).toFixed(2);
+      const valores = [
+        item.nombre,
+        `${item.cantidad}`,
+        `${precioF}`,
+        `${subtotal.toFixed(2)}`,
+      ];
+
+      valores.forEach((val, i) => {
+        drawCellBorder(colX[i], y, colWidths[i], rowHeight);
+        page.drawText(val, {
+          x: colX[i] + 5,
+          y: y - 14,
+          size: 12,
+          font,
+        });
+      });
+
+      y -= rowHeight;
+    });
+
+    // Dibujar fila Subtotal
+    const subtotalLabel = "Subtotal Bs:";
+    const subtotalVal = `${pedido.subTotal.toFixed(2)}`;
+
+    // Unir 3 columnas (Nombre, Cantidad, P.Unit)
+    const mergedWidth = colWidths[0] + colWidths[1] + colWidths[2];
+    drawCellBorder(colX[0], y, mergedWidth, rowHeight);
+    drawCellBorder(colX[3], y, colWidths[3], rowHeight);
+    page.drawText(subtotalLabel, {
+      x: colX[0] + 5,
+      y: y - 14,
+      size: 12,
+      font,
+    });
+    page.drawText(subtotalVal, {
+      x: colX[3] + 5,
+      y: y - 14,
+      size: 12,
+      font,
+    });
+    y -= rowHeight;
+
+    // Dibujar fila Subtotal
+    const subtotalLabel1 = "Impuesto IVA 18%:";
+    const subtotalVal1 = `${(pedido.subTotal * 0.18).toFixed(2)}`;
+
+    // Unir 3 columnas (Nombre, Cantidad, P.Unit)
+    const mergedWidth1 = colWidths[0] + colWidths[1] + colWidths[2];
+    drawCellBorder(colX[0], y, mergedWidth1, rowHeight);
+    drawCellBorder(colX[3], y, colWidths[3], rowHeight);
+    page.drawText(subtotalLabel1, {
+      x: colX[0] + 5,
+      y: y - 14,
+      size: 12,
+      font,
+    });
+    page.drawText(subtotalVal1, {
+      x: colX[3] + 5,
+      y: y - 14,
+      size: 12,
+      font,
+    });
+    y -= rowHeight;
+
+    // Dibujar fila Total (en negrita)
+    const totalLabel = "Total Bs:";
+    const totalVal = `${pedido.total.toFixed(2)}`;
+
+    drawCellBorder(colX[0], y, mergedWidth, rowHeight);
+    drawCellBorder(colX[3], y, colWidths[3], rowHeight);
+    page.drawText(totalLabel, {
+      x: colX[0] + 5,
+      y: y - 14,
+      size: 12,
+      font: fontBold,
+    });
+    page.drawText(totalVal, {
+      x: colX[3] + 5,
+      y: y - 14,
+      size: 12,
+      font: fontBold,
+    });
+
+    y -= 40;
+    y = drawCenteredText(".........................", y);
+    y -= 10;
+    y = drawCenteredText(
+      `Son: ${facturacion.pedido?.total.toFixed(2)} Bolivianos`,
+      y
+    );
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Abrir el PDF en una nueva pestaña y lanzar impresión
+    const newWindow = window.open(blobUrl);
+    if (newWindow) {
+      newWindow.onload = () => {
+        newWindow.focus();
+        newWindow.print(); // Mostrará la vista de impresión
+      };
+    } else {
+      alert(
+        "El navegador bloqueó la apertura de una nueva pestaña. Permite pop-ups para continuar."
+      );
     }
   };
 
@@ -361,9 +638,9 @@ export function PedidoDesing() {
         </Modal.Footer>
       </Modal>
       <div className="container py-4">
-        <h1 className="fw-bolder mb-5">Verificar</h1>
-        <div className="row">
-          <Form>
+        <h1 className="fw-bolder mb-5">Verificar pedido</h1>
+        <div>
+          <Form onSubmit={FinalizarPedido} className="row">
             <div className="col-lg-7 col-md-12">
               <Accordion activeKey={activeKey}>
                 <Accordion.Item eventKey="0" className="border-0">
@@ -444,25 +721,6 @@ export function PedidoDesing() {
                     </div>
                   </Accordion.Header>
                   <Accordion.Body className="p-0">
-                    {/* Paypal */}
-                    <Card className="mb-3">
-                      <Card.Body>
-                        <Form.Check
-                          type="radio"
-                          id="paypal"
-                          name="metodoPago"
-                          label="Pago con Paypal"
-                          value="paypal"
-                          checked={metodo === "paypal"}
-                          onChange={handleSelect}
-                        />
-                        <small className="text-muted ms-4">
-                          Serás redirigido al sitio web de PayPal para completar
-                          tu compra de forma segura.
-                        </small>
-                      </Card.Body>
-                    </Card>
-
                     {/* Tarjeta */}
                     <Card className="mb-3">
                       <Card.Body>
@@ -575,7 +833,72 @@ export function PedidoDesing() {
                 </Accordion.Item>
               </Accordion>
             </div>
-            <div className="col-lg-4 col-md-12 col-12 offset-lg-1"></div>
+            <div className="col-lg-4 col-md-12 col-12 offset-lg-1">
+              <div className="mt-4 mt-lg-0">
+                <div className="shadow-sm card">
+                  <h5 className="px-4 py-3 bg-transparent mb-0">
+                    Detalles del pedido
+                  </h5>
+                  <ul className="list-group list-group-flush">
+                    {pedido?.carrito?.map((e, i) => (
+                      <li key={i} className="px-4 py-3 list-group-item">
+                        <div className="align-items-center row">
+                          <div className="col-md-2 col-2">
+                            <img src={e.url} alt="" height={40} />
+                          </div>
+                          <div className="col-md-5 col-5">
+                            <h6 className="mb-0">{e.nombre}</h6>
+                            <span className="small text-muted">
+                              {e.peso}
+                              {e.unidad}
+                            </span>
+                          </div>
+                          <div className="text-center text-muted col-md-2 col-2">
+                            <span>{e.cantidad}</span>
+                          </div>
+                          <div className="text-lg-end text-start text-md-end col-md-3 col-3">
+                            <span className="fw-bolder">
+                              {e.precioOferta ? e.precioOferta : e.precio} Bs
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                    <li className="px-4 py-3 list-group-item">
+                      <div className="d-flex align-items-center justify-content-between   mb-2">
+                        <div className="">Subtotal del artículo</div>
+                        <div className="fw-bolder">
+                          {pedido.subTotal.toFixed(2)} Bs
+                        </div>
+                      </div>
+                      <div className="d-flex align-items-center justify-content-between   mb-2">
+                        <div className="">Impuesto IVA 18%</div>
+                        <div className="fw-bolder">
+                          {(pedido.subTotal * 0.18).toFixed(2)} Bs
+                        </div>
+                      </div>
+                    </li>
+                    <div className="px-4 py-3 list-group-item">
+                      <div className="d-flex align-items-center justify-content-between mb-2 fw-bold">
+                        <div className="">Gran total</div>
+                        <div className="fw-bolder">
+                          {pedido.total.toFixed(2)} Bs
+                        </div>
+                      </div>
+                    </div>
+                  </ul>
+                </div>
+              </div>
+              <div className="d-grid">
+                <Button
+                  type="submit"
+                  variant="primary my-3 fw-bolder btn-lg"
+                  disabled={direccion.length === 0 || !metodo}
+                >
+                  Finalizar pedido
+                </Button>
+              </div>
+            </div>
           </Form>
         </div>
       </div>
