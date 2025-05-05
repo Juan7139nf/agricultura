@@ -23,6 +23,7 @@ import DetalleProductoDiseño from "../pages/cliente/detalleproductodiseño";
 import { ProductosClient } from "../pages/cliente/productos";
 import { CarritoIndex } from "../pages/cliente/cart";
 import { PedidoDesing } from "../pages/cliente/pedido";
+import Footer from "./components/footer";
 
 const My_Routes = () => {
   return (
@@ -38,7 +39,7 @@ const My_Routes = () => {
 
             <Route exact path="/cart" element={<CarritoIndex />} />
 
-            <Route exact path="/pedido" element={<PedidoDesing />} />
+            <Route exact path="/pedido/:id" element={<PedidoDesing />} />
 
             <Route
               exact
@@ -96,6 +97,9 @@ const My_Routes = () => {
             <Route exact path="/" element={<Inicio />} />
             */}
           </Routes>
+        </div>
+        <div className="w-100">
+          <Footer />
         </div>
       </BrowserRouter>
     </>

@@ -116,9 +116,16 @@ export function CarritoIndex() {
     const carritoRef = ref(database, `usuarios/${user.uid}/carrito`);
 
     // Guardar pedido y luego vaciar carrito
-    push(pedidosRef, pedido)
-      .then(() => remove(carritoRef))
-      .then(() => navigate("/pedido"));
+    const nuevoPedidoRef = push(pedidosRef, pedido);
+
+    nuevoPedidoRef
+      .then((snapshot) => {
+        const pedidoId = snapshot.key;
+        return remove(carritoRef).then(() => pedidoId);
+      })
+      .then((pedidoId) => {
+        navigate(`/pedido/${pedidoId}`);
+      });
   };
 
   return (
