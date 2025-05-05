@@ -38,7 +38,7 @@ export function AdminNav() {
     },
     {
       name: "Facturación",
-      url: "/productor/facturacion",
+      url: "/adminfacturacion",
       icon: <ReceiptIcon fontSize="small" />,
     },
     {

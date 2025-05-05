@@ -24,6 +24,7 @@ function GestionEvento() {
     cuposTotal: 0,
     categoria: "feria", // Valor por defecto
     imagen: "/placeholder.svg",
+    ubicacion: "", // Nuevo campo para la ubicación
   })
 
   useEffect(() => {
@@ -70,9 +71,9 @@ function GestionEvento() {
   }
 
   const crearEvento = async () => {
-    const { nombre, descripcion, fecha, hora, cuposTotal, categoria, imagen } = nuevoEvento
+    const { nombre, descripcion, fecha, hora, cuposTotal, categoria, imagen, ubicacion } = nuevoEvento
 
-    if (!nombre || !descripcion || !fecha || !hora || cuposTotal <= 0 || !categoria) {
+    if (!nombre || !descripcion || !fecha || !hora || cuposTotal <= 0 || !categoria || !ubicacion) {
       alert("Por favor complete todos los campos correctamente")
       return
     }
@@ -109,6 +110,7 @@ function GestionEvento() {
         cuposTotal: 0,
         categoria: "feria",
         imagen: "/placeholder.svg",
+        ubicacion: "",
       })
       setImagenPreview(null)
       setMostrarPreview(false)
@@ -132,6 +134,7 @@ function GestionEvento() {
           cuposTotal: eventoData.cuposTotal || 0,
           categoria: eventoData.categoria || "feria",
           imagen: eventoData.imagen || "/placeholder.svg",
+          ubicacion: eventoData.ubicacion || "",
         })
 
         setImagenPreview(eventoData.imagen)
@@ -156,6 +159,7 @@ function GestionEvento() {
       cuposTotal: 0,
       categoria: "feria",
       imagen: "/placeholder.svg",
+      ubicacion: "",
     })
     setImagenPreview(null)
     setModoEdicion(false)
@@ -384,6 +388,19 @@ function GestionEvento() {
                 />
               </div>
 
+              {/* Nuevo campo para ubicación */}
+              <div className="mb-3">
+                <label className="form-label">Ubicación</label>
+                <input
+                  className="form-control"
+                  type="text"
+                  name="ubicacion"
+                  placeholder="Dirección o lugar del evento"
+                  value={nuevoEvento.ubicacion}
+                  onChange={handleInputChange}
+                />
+              </div>
+
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label className="form-label">Fecha</label>
@@ -457,6 +474,9 @@ function GestionEvento() {
                     {getCategoriaLabel(nuevoEvento.categoria)}
                   </span>
                   <p>{nuevoEvento.descripcion || "Descripción del evento"}</p>
+                  <p>
+                    <strong>Ubicación:</strong> {nuevoEvento.ubicacion || "Por definir"}
+                  </p>
                   <p>
                     <strong>Fecha:</strong> {nuevoEvento.fecha || "Pendiente"}
                   </p>
@@ -621,6 +641,11 @@ function GestionEvento() {
                       </span>
                     </div>
                     <p>{evento.descripcion}</p>
+                    {evento.ubicacion && (
+                      <p>
+                        <strong>Ubicación:</strong> {evento.ubicacion}
+                      </p>
+                    )}
                     <p>
                       <strong>Fecha:</strong> {evento.fecha}
                     </p>

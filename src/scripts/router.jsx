@@ -24,6 +24,7 @@ import { ProductosClient } from "../pages/cliente/productos";
 import { CarritoIndex } from "../pages/cliente/cart";
 import { PedidoDesing } from "../pages/cliente/pedido";
 import Footer from "./components/footer";
+import AdminFacturacion from "../pages/admin/adminfacturacion";
 
 const My_Routes = () => {
   return (
@@ -62,6 +63,7 @@ const My_Routes = () => {
             <Route path="/gestionpedido" element={<GestionPedido />} />
             <Route exact path="/login" element={<Login />} />
             <Route exact path="/paneladmin" element={<Adminicio />} />
+            <Route exact path="/adminfacturacion" element={<AdminFacturacion />} />
             <Route exact path="/productor" element={<ProductorInicio />} />
             <Route
               exact
