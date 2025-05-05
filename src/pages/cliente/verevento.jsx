@@ -14,6 +14,7 @@ function VerEvento() {
   const [showPropuestaModal, setShowPropuestaModal] = useState(false)
   const [showInscripcionModal, setShowInscripcionModal] = useState(false)
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null)
+  const [eventoPreview, setEventoPreview] = useState(null) // Para la vista previa del evento
 
   useEffect(() => {
     // Cargar eventos
@@ -158,6 +159,14 @@ function VerEvento() {
     setShowInscripcionModal(true)
   }
 
+  const handleVerDetalles = (evento) => {
+    setEventoPreview(evento)
+  }
+
+  const cerrarPreview = () => {
+    setEventoPreview(null)
+  }
+
   // Verificar si el usuario puede inscribirse (es comerciante o productor)
   const puedeInscribirse =
     usuario && usuario.roles && (usuario.roles.includes("comerciante") || usuario.roles.includes("productor"))
@@ -189,16 +198,27 @@ function VerEvento() {
               {evento.fecha} | {evento.hora}
             </small>
           </p>
+          {evento.ubicacion && (
+            <p className="card-text text-muted mb-2">
+              <small>
+                <i className="bi bi-geo-alt me-2"></i>
+                {evento.ubicacion}
+              </small>
+            </p>
+          )}
           <p className="card-text flex-grow-1">{evento.descripcion}</p>
           <div className="d-flex justify-content-between align-items-center mt-3">
             <span className="badge bg-light text-dark">
               Cupos: {evento.cuposDisponibles} / {evento.cuposTotal}
             </span>
-            {puedeInscribirse && (
-              <button className="btn btn-outline-primary rounded-pill" onClick={() => handleInscripcionClick(evento)}>
-                Inscribirse
-              </button>
-            )}
+            <div className="d-flex gap-2">
+
+              {puedeInscribirse && (
+                <button className="btn btn-sm btn-outline-primary" onClick={() => handleInscripcionClick(evento)}>
+                  Inscribirse
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -288,6 +308,8 @@ function VerEvento() {
           onSubmit={handleInscripcionSubmit}
         />
       )}
+
+
     </div>
   )
 }
