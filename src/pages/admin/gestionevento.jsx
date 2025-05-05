@@ -422,6 +422,7 @@ function GestionEvento() {
                     onChange={handleInputChange}
                   />
                 </div>
+                
               </div>
 
               <div className="mb-3">
