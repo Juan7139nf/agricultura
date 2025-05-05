@@ -249,7 +249,7 @@ export function PedidoDesing() {
       idPedido: id,
     };
 
-    facturacion.pedido.estado = "completado"
+    facturacion.pedido.estado = "completado";
 
     const pedidoRef = ref(database, `pedidos/${id}`);
     const facturacionRef = ref(database, "facturacion");
@@ -1214,7 +1214,7 @@ export function PedidoDesing() {
             </div>
             <h1>Pedido</h1>
             <div className="row">
-              <div className="col-lg-6 col-md-12 col-12 offset-lg-1">
+              <div className="col-lg-6 col-md-12 col-12">
                 <div className="mt-4 mt-lg-0">
                   <div className="shadow-sm card">
                     <h5 className="px-4 py-3 bg-transparent mb-0">
@@ -1240,9 +1240,9 @@ export function PedidoDesing() {
                     </ul>
                   </div>
                 </div>
-                {console.log(factura)}
+
                 {pedido.estado === "completado" && (
-                  <div className="mt-4 mt-lg-0">
+                  <div className="mt-4 mt-lg-0 pt-4">
                     <div className="shadow-sm card">
                       <h5 className="px-4 py-3 bg-transparent mb-0">
                         Detalles de entrega
@@ -1280,7 +1280,7 @@ export function PedidoDesing() {
                   </div>
                 )}
               </div>
-              <div className="col-lg-6 col-md-12 col-12 offset-lg-1">
+              <div className="col-lg-6 col-md-12 col-12">
                 <div className="mt-4 mt-lg-0">
                   <div className="shadow-sm card">
                     <h5 className="px-4 py-3 bg-transparent mb-0">

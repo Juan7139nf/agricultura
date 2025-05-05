@@ -28,6 +28,7 @@ import AdminFacturacion from "../pages/admin/adminfacturacion";
 import VerEvento from "../pages/cliente/verevento";
 import VerEventoC from "../pages/cliente/vereventoC";
 import Perfil from "../pages/cliente/perfil";
+import Register from "../pages/authentication/register";
 
 const My_Routes = () => {
   return (
@@ -69,6 +70,7 @@ const My_Routes = () => {
             />
             <Route path="/gestionpedido" element={<GestionPedido />} />
             <Route exact path="/login" element={<Login />} />
+            <Route exact path="/register" element={<Register />} />
             <Route exact path="/paneladmin" element={<Adminicio />} />
             <Route
               exact

@@ -4,12 +4,15 @@ import { getDatabase, ref, get } from "firebase/database";
 import { database } from "../../scripts/firebase/firebase";
 import { NavLink } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditProfileModal from "./editProfileModal";
+import { Button } from "react-bootstrap";
 
 const Perfil = () => {
   const [usuario, setUsuario] = useState(null);
   const [pedidos, setPedidos] = useState([]);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null); // Para almacenar el usuario autenticado
+  const [showModal, setShowModal] = useState(false);
 
   // Obtener el usuario autenticado
   useEffect(() => {
@@ -75,7 +78,6 @@ const Perfil = () => {
 
       {usuario && (
         <div>
-          {console.log(pedidos)}
           <div className="w-100 d-flex align-items-center">
             <div className="">
               <img
@@ -93,6 +95,17 @@ const Perfil = () => {
               </div>
             </div>
           </div>
+          <Button onClick={() => setShowModal(true)}>Editar perfil</Button>
+
+          <EditProfileModal
+            show={showModal}
+            onHide={() => setShowModal(false)}
+            userData={usuario}
+            onUpdate={(updatedUser) => {
+              setUserData(updatedUser);
+              localStorage.setItem("user", JSON.stringify(updatedUser));
+            }}
+          />
         </div>
       )}
 
