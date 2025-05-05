@@ -165,12 +165,12 @@ export function ProductorProductos() {
                                     <NavLink to={`/productor/productos/editar/${e.id}`} className="btn btn-success py-0 px-1">
                                       <EditSquareIcon />
                                     </NavLink>
-                                    <Button variant="danger py-0 px-1">
+                                    {/*<Button variant="danger py-0 px-1">
                                       <DeleteIcon />
                                     </Button>
                                     <Button variant="warning py-0 px-1">
                                       <RestartAltIcon />
-                                    </Button>
+                                    </Button>*/}
                                   </div>
                                 </td>
                               </tr>
